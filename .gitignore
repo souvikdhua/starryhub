@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+chroma_db/
+logs/
+node_modules/
+*.log
+.DS_Store
+Astrology_RAG_Engine.ipynb
+build_notebook.py
+train_vedic_model.py
+train_openrouter_model.py
+training_data.jsonl
+training_data_openrouter.jsonl

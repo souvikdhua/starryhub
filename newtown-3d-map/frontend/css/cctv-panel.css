@@ -1,0 +1,112 @@
+.right-sidebar {
+    position: absolute;
+    top: 100px;
+    right: -380px;
+    /* Hidden by default */
+    width: 320px;
+    height: calc(100vh - 140px);
+    padding: 20px;
+    z-index: 10;
+    transition: right 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+}
+
+.right-sidebar.open {
+    right: 20px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--glass-border);
+    padding-bottom: 15px;
+}
+
+.panel-header h3 {
+    font-family: var(--font-heading);
+    color: var(--text-color);
+    letter-spacing: 1px;
+}
+
+.cctv-grid {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-right: 5px;
+}
+
+/* Scrollbar restyle for webkit */
+.cctv-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.cctv-grid::-webkit-scrollbar-thumb {
+    background: var(--panel-border);
+}
+
+.cctv-card {
+    background: #0a0a0a;
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cctv-card-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-color);
+}
+
+.cctv-video-container {
+    height: 160px;
+    background: #000;
+    border: 1px solid var(--panel-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Mock Computer Vision Analytics Overlay */
+.cv-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 6;
+    overflow: hidden;
+}
+
+.cv-box {
+    position: absolute;
+    border: 1px solid var(--primary-color);
+    background: rgba(46, 102, 255, 0.1);
+}
+
+.cv-box::after {
+    content: attr(data-label);
+    position: absolute;
+    top: -15px;
+    left: -1px;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 9px;
+    padding: 2px 4px;
+    font-weight: 500;
+    font-family: var(--font-main);
+    white-space: nowrap;
+}

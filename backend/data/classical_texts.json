@@ -1,0 +1,48 @@
+{
+    "bphs": [
+        {
+            "chapter": "Chapter 47",
+            "topic": "Debilitated Planets (Neecha Bhanga)",
+            "text": "If a debilitated planet is associated with or aspected by the lord of the sign where it is debilitated, or by the lord of its exaltation sign, then its debilitation is cancelled and it produces Raja Yoga effects later in life."
+        },
+        {
+            "chapter": "Chapter 34",
+            "topic": "Combustion (Astangata)",
+            "text": "Planets in combustion with the Sun lose their power to give good results. If Mercury is combust, the native's speech, intellect, and maternal uncles are adversely affected unless Mercury possesses very high Shadbala."
+        },
+        {
+            "chapter": "Chapter 36",
+            "topic": "Bhagya Yoga (9th House)",
+            "text": "The 9th Lord placed in the 9th house grants exceptional fortune, adherence to Dharma, and blessings from ancestors. However, Malefics joining the 9th lord diminish these effects through karmic debts."
+        },
+        {
+            "chapter": "Chapter 18",
+            "topic": "7th House & Marriage",
+            "text": "If Mars occupies the 7th house, it creates Kuja Dosha, indicating conflict or destruction of the spouse, unless Mars is in its own or exaltation sign, or receives the aspect of a strong Jupiter."
+        }
+    ],
+    "phaladeepika": [
+        {
+            "chapter": "Chapter 15",
+            "topic": "Ketu and the Sun",
+            "text": "When Ketu joins the Sun, it indicates Pitru Dosha and creates sudden downfalls in career, spiritual crises, and alienation from fatherly figures. Such natives often seek unconventional spiritual paths."
+        },
+        {
+            "chapter": "Chapter 20",
+            "topic": "Transits (Gochar)",
+            "text": "When Jupiter transits over the natal Moon, the 2nd, 5th, 7th, 9th, or 11th house from it, it brings wealth, a spouse, children, and overall happiness. Saturn transiting the 12th, 1st, and 2nd from the natal Moon causes Sade Sati, a period of immense psychological pressure and physical toil."
+        }
+    ],
+    "jaimini": [
+        {
+            "chapter": "Sutra 1.1.11",
+            "topic": "Atma Karaka (AK)",
+            "text": "The planet with the highest longitude in any sign becomes the Atma Karaka. It signifies the core desire of the soul traversing this incarnation."
+        },
+        {
+            "chapter": "Sutra 1.2.14",
+            "topic": "Karakamsa",
+            "text": "The sign occupied by the Atma Karaka in the Navamsa (D9) chart is the Karakamsa. If Venus occupies the Karakamsa or the 10th from it, the native attains professional success through arts, luxury, or diplomacy, but requires severe discipline."
+        }
+    ]
+}

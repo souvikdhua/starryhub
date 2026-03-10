@@ -1,0 +1,47 @@
+#!/bin/bash
+IDENTIFIERS=(
+  BPHSEnglish
+  brihat-parashara-hora-shastra
+  brihat-parashara-hora-sastra
+  jyotisha
+  brihat-samhita
+  b3136259x_0001
+  b29353130
+  saptarshi-nadi
+  naradasamhita
+  JatakaTattvamVSSastri
+  NotableHoroscopesBVR
+  AManualOfHinduAstrologyBVRaman1935Edition
+  ashtakavarga
+  kupdf.net_uttkalamrita-kalidas-ps-sastri
+  Jyotirvidabharanam
+  lal-kitab-1952-grammer-portion-page-1-to-234
+  fundamentalsofve0000beha
+  nakshatraslunarm0000harn
+  astrologyofseers0000fraw
+  KCzD_elements-of-vedic-astrology-dr.-k-s-charak
+  sanjayrathcruxofvedicastrologytimingofevents19982
+  tajika_nilakanthi
+  MeenaNadi
+  JaiminiSutraWithTikapothi
+  shuka_jatakam
+  bhava_kutuhalam
+  jyotisha-siddhant-sara-hindu-astrology
+  brihat-parashara-hora-sastra
+  HoroscopeSaptarishiNadi
+  lagna-bhava-phaladhyaya
+  brhat-jataka-the-navamsa
+  jaiminis-svamsa-cakra-part-1
+  pancanga-jyotisa-the-tithi
+  NotableHoroscopesBVR
+  vedicastrologyfo0000lath
+  artpracticeofanc0000brah
+  pathoflight0001kell
+  systemsapproachf0000chou
+  astrologyitsconn00venk
+  hindubookastrol00sevagoog
+)
+
+for id in "${IDENTIFIERS[@]}"; do
+  ia download "$id" --glob="*.pdf" -d ./jyotish_pdfs/
+done

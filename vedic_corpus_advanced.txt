@@ -1,0 +1,196 @@
+=== SECTION 21: PLANETARY DIGNITY SCORING (SHADBALA PRINCIPLES) ===
+[Source: BPHS Ch.27, Graha & Bhava Balas]
+A planet's true strength is measured across 6 dimensions:
+1. STHANA BALA (Positional): Exaltation=60, Moola Trikona=45, Own Sign=30, Friendly=15, Neutral=7.5, Enemy=3.75, Debilitated=0.
+2. DIG BALA (Directional): Jupiter/Mercury strong in 1st (East). Sun/Mars strong in 10th (South). Saturn strong in 7th (West). Moon/Venus strong in 4th (North). Opposite direction=0 dig bala.
+3. KALA BALA (Temporal): Sun/Jupiter/Mars strong during day. Moon/Venus/Saturn strong at night. Mercury strong always.
+4. CHESHTA BALA (Motional): Retrograde planet gets maximum cheshta bala. Fast-moving planet gets less.
+5. NAISARGIKA BALA (Natural): Sun=60, Moon=51.4, Mars=17.1, Mercury=25.7, Jupiter=34.3, Venus=42.8, Saturn=8.6.
+6. DRIK BALA (Aspectual): Benefic aspects add strength. Malefic aspects reduce strength.
+
+=== SECTION 22: ASHTAKAVARGA SYSTEM ===
+[Source: BPHS Ch.66-72]
+Each planet contributes benefic points (bindus) to signs. Maximum 8 bindus per sign per planet.
+Total points per sign across all planets: Sarvashtakavarga (SAV). Maximum 56 per sign.
+SAV > 30 in a sign: Extremely strong house. Planets transiting here give excellent results.
+SAV 25-30: Good results. SAV < 25: Weak house, planets transiting give poor results.
+SAV < 20: Very weak house — any transit here brings suffering.
+Individual planet's Bhinnashtakavarga: > 4 bindus = good transit results. < 4 = bad transit results.
+KEY RULE: Saturn transiting a sign with SAV < 25 during Sade Sati = worst period.
+Jupiter transiting a sign with SAV > 28 = phenomenal fortune.
+
+=== SECTION 23: BHAVA CHALIT (HOUSE VS SIGN DISTINCTION) ===
+[Source: BPHS, Ganita section]
+Rashi chart (D1) shows SIGN placements. Bhava Chalit shows HOUSE placements.
+A planet at 28° Aries with Ascendant at 5° Aries: In Aries by sign but shifted to 2nd house in Bhava Chalit.
+CRITICAL RULE: For predicting RESULTS, use Bhava Chalit house placement. For dignity/strength, use Rashi sign.
+A planet can own one house by sign but deliver results of the adjacent house in Bhava Chalit.
+
+=== SECTION 24: GANDANTA (KARMIC KNOT) ===
+[Source: BPHS, Nadi Texts]
+Junction points between water and fire signs: last 3°20' of Cancer/Scorpio/Pisces and first 3°20' of Leo/Sagittarius/Aries.
+Nakshatras at gandanta: Ashlesha-Magha junction, Jyeshtha-Moola junction, Revati-Ashwini junction.
+Moon in gandanta: Extreme emotional turmoil, karmic intensity from past lives. Moola gandanta most severe — "uprooting" of family/stability.
+Any planet in gandanta: That planet's significations undergo intense karmic transformation. Not necessarily bad — can indicate extraordinary spiritual evolution.
+Jyeshtha-Moola gandanta: Most dangerous. Associated with family separation, early life crises, but immense spiritual power.
+
+=== SECTION 25: PUSHKARA NAVAMSHA AND PUSHKARA BHAGA ===
+[Source: Nadi Jyotish, Tajika]
+Pushkara Navamshas: Special navamsha divisions that greatly empower any planet placed in them.
+In each sign, specific degree ranges fall in Pushkara Navamsha:
+Aries/Leo/Sagittarius: 3°20'-6°40' and 23°20'-26°40'.
+Taurus/Virgo/Capricorn: 6°40'-10° and 20°-23°20'.
+Gemini/Libra/Aquarius: 16°40'-20° and 26°40'-30°.
+Cancer/Scorpio/Pisces: 0°-3°20' and 13°20'-16°40'.
+Planet in Pushkara Navamsha: Nourished, protected, gives excellent results regardless of other conditions.
+Pushkara Bhaga (specific degrees): Even more powerful. Each sign has specific lucky degrees.
+
+=== SECTION 26: VARGOTTAMA ===
+[Source: BPHS Ch.7]
+A planet in the same sign in both Rashi (D1) and Navamsha (D9) is Vargottama.
+First navamsha of fire signs (0°-3°20' of Aries/Leo/Sagittarius): Vargottama.
+Middle navamsha of earth signs (13°20'-16°40' of Taurus/Virgo/Capricorn): Vargottama.
+7th navamsha of air signs (20°-23°20' of Gemini/Libra/Aquarius): Vargottama.
+Last navamsha of water signs (26°40'-30° of Cancer/Scorpio/Pisces): Vargottama.
+Vargottama planet: Nearly as strong as exalted. Consistent results in both material and spiritual life.
+Vargottama Lagna: Very strong ascendant. Native has clarity of purpose and strong personality.
+
+=== SECTION 27: ATMAKARAKA IN NAVAMSHA (KARAKAMSA DEEP ANALYSIS) ===
+[Source: Jaimini Sutras Ch.1-2]
+Planets in Karakamsa determine life path:
+Sun in Karakamsa: Government service, political career, administrative power.
+Moon in Karakamsa: Agriculture, nursing, hospitality, liquid trade, textiles.
+Mars in Karakamsa: Metallurgy, surgery, police, military, fire department, engineering.
+Mercury in Karakamsa: Sculpting, writing, commerce, accounting, IT, astrology.
+Jupiter in Karakamsa: Philosophy, teaching, priesthood, vedic studies, law, judiciary.
+Venus in Karakamsa: Politics, performing arts, luxury goods, diplomacy, poetry.
+Saturn in Karakamsa: Carries father's trade, traditional occupation, labor-intensive work.
+Rahu in Karakamsa: Foreign lands career, thieves/spies, unconventional path, technology.
+Ketu in Karakamsa: Watchmaking, mathematics, occult, spiritual healing.
+
+=== SECTION 28: NADI AMSHA (ADVANCED NAKSHATRA SUB-DIVISIONS) ===
+[Source: Nadi Texts, Chandra Hari's Nadi]
+Each nakshatra pada has 9 sub-divisions (navamsha within navamsha = 150 total divisions of zodiac).
+Level of analysis: Planet's behavior changes based on sub-lord within nakshatra.
+Sub-lord sequence in each pada follows Vimshottari order starting from pada's ruler.
+CRITICAL: Two charts with same rashi placements but different nadi amsha will have completely different results.
+This is why D60 (Shashtiamsha) is considered the most microscopic and differentiating divisional chart.
+
+=== SECTION 29: ARGALA (PLANETARY INTERVENTION) ===
+[Source: Jaimini Sutras Ch.1]
+Argala = intervention/influence of planets on a house.
+2nd from any house: Dhana Argala (wealth intervention). Strongest material influence.
+4th from any house: Sukha Argala (happiness intervention). Emotional/comfort influence.
+11th from any house: Labha Argala (gains intervention). Support and fulfillment.
+5th from any house: Putra Argala (progeny/intelligence intervention).
+Obstruction: 12th from house obstructs 2nd. 10th obstructs 4th. 3rd obstructs 11th. 9th obstructs 5th.
+A benefic in argala position strengthens the house. Malefic in argala position damages the house.
+If obstruction planet is stronger than argala planet: Argala is nullified.
+
+=== SECTION 30: ARUDHA PADAS (MAYA/PERCEPTION) ===
+[Source: Jaimini Sutras Ch.1]
+Arudha = image/perception of a house in the world's eyes. How others see you.
+Arudha Lagna (AL): Count from 1st lord to 1st house, then same distance further = AL. Shows worldly image, social status, how society perceives you. Different from true self (Lagna).
+A10 (Rajapada): Arudha of 10th house. Public career image, fame, authority perceived by world.
+A7 (Darapada): Arudha of 7th house. How your relationship/marriage appears to others.
+A2 (Dhana Pada): Arudha of 2nd house. How wealthy you appear to be.
+UL (Upapada Lagna): Arudha of 12th house. Quality and nature of marriage partner's family.
+CRITICAL: Planets in or aspecting AL determine social status. Benefics on AL = respected. Malefics = scandalous image.
+
+=== SECTION 31: HORA LAGNA AND GHATI LAGNA ===
+[Source: BPHS Ch.5]
+Hora Lagna: Moves one sign every 2.5 hours. Connected to wealth and financial timing.
+Planets associated with Hora Lagna: Indicate sources and timing of wealth acquisition.
+If 2nd/11th lord from Hora Lagna is strong: Wealth comes easily.
+Ghati Lagna: Moves one sign every ~5 minutes. Connected to power, authority.
+Planets associated with Ghati Lagna: Indicate timing of rise to power.
+Both are used for fine-tuning predictions beyond regular Lagna analysis.
+
+=== SECTION 32: TITHI AND LUNAR DAY ANALYSIS ===
+[Source: Muhurta Chintamani, BPHS]
+30 Tithis in a lunar month (15 Shukla/waxing + 15 Krishna/waning).
+Birth on Purnima (Full Moon): Emotional, public life, fame, strong mind.
+Birth on Amavasya (New Moon): Introverted, secretive, occult tendencies, Sun-Moon conjunction.
+Birth on Chaturthi (4th): Obstacles from Ganesh karma, needs propitiation.
+Birth on Ashtami (8th): Constant transformation, occult interests, health fluctuations.
+Birth on Navami (9th): Protected by Mars energy, aggressive, military inclination.
+Birth on Ekadashi (11th): Spiritual, fasting brings merit, Vishnu devotion.
+Birth on Chaturdashi (14th): Shiva energy, unconventional, fierce, transformative.
+Janma Tithi lord: Planet ruling birth tithi influences core personality beneath rashi/nakshatra.
+
+=== SECTION 33: SUDARSHANA CHAKRA (TRIPLE LAGNA ANALYSIS) ===
+[Source: BPHS Ch.64]
+Three simultaneous charts read together:
+1. From Ascendant Lagna: Physical body, material life, actions.
+2. From Moon Lagna (Chandra Lagna): Mind, emotions, psychological experience.
+3. From Sun Lagna (Surya Lagna): Soul, ego, authority, father, career.
+Rule: An event manifests ONLY when indicated from at least 2 out of 3 lagnas.
+If a yoga exists from Lagna AND Moon: Will manifest. From Lagna only: Physical potential but no emotional drive.
+Sudarshana Dasha: Each house activates for 1 year from all 3 lagnas simultaneously.
+
+=== SECTION 34: ECLIPSES IN BIRTH CHART ===
+[Source: BPHS, Surya Siddhanta]
+Born during solar eclipse (Sun-Rahu/Ketu conjunction within close orb):
+Intense karmic birth. Father figure eclipsed. Soul path involves overcoming ego death.
+Power to influence masses but through unconventional means. Government obstacles.
+Born during lunar eclipse (Moon-Rahu/Ketu conjunction within close orb):
+Emotional intensity, psychic sensitivity, mother's health issues.
+Public influence, connection to masses' emotions. Anxiety and mental fluctuations.
+Pre-natal eclipse point: The eclipse that occurred before birth activates a sensitive degree.
+Transits over pre-natal eclipse degree trigger major life events.
+
+=== SECTION 35: MARAKA (DEATH-INFLICTING) PLANETS ===
+[Source: BPHS Ch.44, Phaladeepika Ch.13]
+2nd and 7th house lords are natural maraka (death-inflicting) planets.
+They cause health crises during their dashas, especially in old age.
+Strongest maraka: Planet that is both 2nd/7th lord AND occupies a maraka house.
+Saturn is natural maraka for all charts (karaka for death/longevity).
+If 2nd lord is in 7th or 7th lord is in 2nd: Strong maraka combination.
+Badhaka (Obstruction):
+For movable (chara) signs: 11th lord is badhaka. For fixed (sthira) signs: 9th lord is badhaka. For dual (dvisvabhava) signs: 7th lord is badhaka.
+Badhaka planet's dasha brings inexplicable obstacles, spiritual disturbances.
+
+=== SECTION 36: PLANETARY WAR (GRAHA YUDDHA) ===
+[Source: BPHS Ch.3, Surya Siddhanta]
+When two planets (excluding Sun, Moon, Rahu, Ketu) are within 1° of each other.
+The planet with lower longitude wins the war. The defeated planet loses power.
+Mars-Mercury war: Communication becomes aggressive or intelligence serves military purposes.
+Jupiter-Venus war: Wisdom vs pleasure conflict. Marital wisdom or spiritual luxury.
+Mars-Saturn war: Extreme tension. Can indicate accidents, violence, or extraordinary discipline.
+Winner of planetary war becomes stronger than usual. Loser becomes severely weakened.
+
+=== SECTION 37: PANCHANGA ELEMENTS ===
+[Source: Muhurta texts, BPHS supplement]
+Five limbs of time at birth:
+1. VARA (Day): Sunday=Sun, Monday=Moon, Tuesday=Mars, Wednesday=Mercury, Thursday=Jupiter, Friday=Venus, Saturday=Saturn.
+2. TITHI (Lunar day): 30 per month, groups of 5 have specific qualities.
+3. NAKSHATRA (Lunar mansion): Moon's nakshatra at birth = Janma Nakshatra.
+4. YOGA (Sun-Moon combination): 27 yogas from combined longitude. Vishkamba, Preeti, Ayushman, etc.
+5. KARANA (Half-tithi): 11 karanas, each governing specific activities.
+An auspicious panchanga at birth: Native has inherent good fortune.
+
+=== SECTION 38: UPACHAYA GROWTH PRINCIPLE ===
+[Source: Phaladeepika, BPHS]
+Houses 3, 6, 10, 11 are Upachaya (houses of growth).
+Malefic planets (Sun, Mars, Saturn, Rahu) in Upachaya houses IMPROVE with age.
+Mars in 3rd: Courage grows. Mars in 6th: Defeats enemies. Mars in 10th: Career power. Mars in 11th: Wealth through effort.
+Saturn in 3rd: Discipline. Saturn in 6th: Destroys diseases/enemies. Saturn in 10th: Lasting career. Saturn in 11th: Steady gains.
+Benefic planets in Upachaya are moderate — they prefer Kendras and Trikonas.
+KEY: A chart with malefics stacked in Upachaya houses improves dramatically after age 30-36.
+
+=== SECTION 39: DISPOSITOR CHAIN ===
+[Source: Advanced Parashari Analysis]
+Every planet is "disposed" by the lord of the sign it occupies.
+Following the dispositor chain reveals the FINAL DISPOSITOR — the planet that ultimately controls the chart.
+If a planet is in its own sign: It is self-disposed and becomes a final dispositor.
+If two planets are in each other's signs: Mutual reception (Parivartana Yoga) — they share power.
+A chart with a single final dispositor: Life has clear direction. That planet's significations dominate.
+A chart with a mutual reception as final dispositor: Life oscillates between two themes.
+
+=== SECTION 40: MEDICAL ASTROLOGY (ROGA JYOTISH) ===
+[Source: BPHS, Prasna Marga]
+Each sign rules body parts: Aries=Head, Taurus=Face/Throat, Gemini=Arms/Lungs, Cancer=Chest/Stomach, Leo=Heart/Spine, Virgo=Intestines/Nervous System, Libra=Kidneys/Lower Back, Scorpio=Reproductive Organs, Sagittarius=Hips/Thighs, Capricorn=Knees/Bones, Aquarius=Ankles/Circulation, Pisces=Feet/Lymphatic.
+6th house lord: Indicates type of disease. In fire sign=fever/inflammation. In water sign=cold/phlegm. In earth sign=structural/chronic. In air sign=nervous/mental.
+6th lord conjunct/aspected by:
+Sun: Heart, bone, eye diseases. Moon: Digestive, fluid retention. Mars: Surgery, blood disorders, accidents. Mercury: Skin, nervous disorders. Jupiter: Liver, fat-related, diabetes. Venus: Kidney, reproductive, urinary. Saturn: Chronic pain, arthritis, depression.
+8th house affliction: Chronic/incurable conditions, surgeries, hidden illnesses.

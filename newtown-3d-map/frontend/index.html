@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Town 3D Interactive Map</title>
+
+    <!-- Fonts (Professional OSINT Vibe) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- CesiumJS CSS -->
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/cctv-panel.css">
+    <link rel="stylesheet" href="css/streetview-modal.css">
+
+    <!-- CesiumJS Library -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+
+    <!-- Socket.IO or WebSocket client (we use raw WebSocket) -> Optional, using browser native -->
+</head>
+
+<body class="dark-theme">
+
+    <!-- Background Grid & Scanline HUD (Removed for clean OSINT look) -->
+
+    <!-- Header -->
+    <header class="osint-top-bar">
+        <div class="logo">
+            <h1>NEW_TOWN // <span>OSINT.DASH</span></h1>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search entities... (Cmd+K)">
+        </div>
+        <div class="weather-widget" id="weatherWidget">
+            <span class="temp">--°C</span> • <span class="cond">Loading</span>
+        </div>
+    </header>
+
+    <!-- Map Container -->
+    <main class="map-container" id="cesiumContainer"></main>
+
+    <!-- Left Sidebar: Controls -->
+    <aside class="osint-sidebar left-sidebar">
+        <h3>ENTITY LAYERS</h3>
+        <div class="layer-toggles">
+            <label><input type="checkbox" id="toggleBuildings" checked> <span>3D Structures</span></label>
+            <label><input type="checkbox" id="toggleCctv" checked> <span>Surveillance Nodes</span></label>
+            <label><input type="checkbox" id="toggleTraffic"> <span>Traffic Vectors</span></label>
+            <label><input type="checkbox" id="toggleAnalytics"> <span>A.I. Anomaly Heatmap</span></label>
+        </div>
+
+        <h3 class="mt-4">MACRO CONTROLS</h3>
+        <div class="control-buttons">
+            <button id="btnDayNight">Toggle Lighting</button>
+            <button id="btnCalculateRoute" class="primary-btn">Calculate EVOC Route</button>
+            <button id="btnResetView">Reset Viewport</button>
+            <button id="btnStreetViewMap">Engage Street View</button>
+        </div>
+    </aside>
+
+    <!-- Right Sidebar: CCTV Panel -->
+    <aside class="osint-sidebar right-sidebar" id="cctvPanel">
+        <div class="panel-header">
+            <h3>SURVEILLANCE INSPECTOR</h3>
+            <button id="closeCctvPanel" class="btn-icon">×</button>
+        </div>
+        <div class="cctv-grid" id="cctvGrid">
+            <!-- Dynamic CCTV Feeds will populate here -->
+            <p class="text-muted">Awaiting node selection...</p>
+        </div>
+    </aside>
+
+    <!-- Bottom Bar -->
+    <footer class="osint-bottom-bar">
+        <div class="status-indicator live"></div>
+        <div class="coordinates" id="coordsDisplay">Lng: 00.00000, Lat: 00.00000, Alt: 00m</div>
+    </footer>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal osint-panel hidden">
+        <div class="modal-header">
+            <h3 id="infoTitle">ENTITY DATA</h3>
+            <button id="closeInfoModal" class="btn-icon">×</button>
+        </div>
+        <div class="modal-body" id="infoBody"></div>
+    </div>
+
+    <!-- Street View Modal Container -->
+    <div id="streetViewModal" class="hidden">
+        <div class="modal-header osint-panel">
+            <h3>Street View</h3>
+            <button id="closeStreetView" class="btn-icon">×</button>
+        </div>
+        <div id="panoContainer"></div>
+    </div>
+
+    <!-- Main Logic -->
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

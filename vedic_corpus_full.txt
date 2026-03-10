@@ -1,0 +1,535 @@
+================================================================================
+VEDIC ASTROLOGY MASTER KNOWLEDGE CORPUS
+Source: BPHS (Brihat Parashara Hora Shastra), Phaladeepika, Jaimini Sutras, Saravali, Uttara Kalamrita
+================================================================================
+
+=== SECTION 1: PLANETARY EXALTATION AND DEBILITATION (UCHCHA-NEECHA) ===
+[Source: BPHS Ch.3]
+Sun: Exalted at 10° Aries (Mesha). Deep debilitation at 10° Libra (Tula). Moola Trikona: 0-20° Leo.
+Moon: Exalted at 3° Taurus (Vrishabha). Deep debilitation at 3° Scorpio (Vrishchika). Moola Trikona: 4-20° Taurus.
+Mars: Exalted at 28° Capricorn (Makara). Deep debilitation at 28° Cancer (Karka). Moola Trikona: 0-12° Aries.
+Mercury: Exalted at 15° Virgo (Kanya). Deep debilitation at 15° Pisces (Meena). Moola Trikona: 16-20° Virgo.
+Jupiter: Exalted at 5° Cancer (Karka). Deep debilitation at 5° Capricorn (Makara). Moola Trikona: 0-10° Sagittarius.
+Venus: Exalted at 27° Pisces (Meena). Deep debilitation at 27° Virgo (Kanya). Moola Trikona: 0-15° Libra.
+Saturn: Exalted at 20° Libra (Tula). Deep debilitation at 20° Aries (Mesha). Moola Trikona: 0-20° Aquarius.
+Rahu: Exalted in Taurus/Gemini. Debilitated in Scorpio/Sagittarius (per Parashari view).
+Ketu: Exalted in Scorpio/Sagittarius. Debilitated in Taurus/Gemini.
+
+=== SECTION 2: PLANETARY OWNERSHIP (GRAHA SWARASHI) ===
+[Source: BPHS Ch.3]
+Sun rules Leo. Moon rules Cancer. Mars rules Aries and Scorpio. Mercury rules Gemini and Virgo. Jupiter rules Sagittarius and Pisces. Venus rules Taurus and Libra. Saturn rules Capricorn and Aquarius. Rahu co-rules Aquarius. Ketu co-rules Scorpio.
+
+=== SECTION 3: NATURAL PLANETARY FRIENDSHIPS ===
+[Source: BPHS Ch.3]
+Sun: Friends=Moon,Mars,Jupiter. Neutral=Mercury. Enemies=Venus,Saturn.
+Moon: Friends=Sun,Mercury. Neutral=Mars,Jupiter,Venus,Saturn. Enemies=None.
+Mars: Friends=Sun,Moon,Jupiter. Neutral=Venus,Saturn. Enemies=Mercury.
+Mercury: Friends=Sun,Venus. Neutral=Mars,Jupiter,Saturn. Enemies=Moon.
+Jupiter: Friends=Sun,Moon,Mars. Neutral=Saturn. Enemies=Mercury,Venus.
+Venus: Friends=Mercury,Saturn. Neutral=Mars,Jupiter. Enemies=Sun,Moon.
+Saturn: Friends=Mercury,Venus. Neutral=Jupiter. Enemies=Sun,Moon,Mars.
+
+=== SECTION 4: PLANETARY ASPECTS (GRAHA DRISHTI) ===
+[Source: BPHS Ch.26]
+All planets aspect the 7th house from their position (full aspect 100%).
+Mars has special aspects: 4th house (full), 7th house (full), 8th house (full) from its position.
+Jupiter has special aspects: 5th house (full), 7th house (full), 9th house (full) from its position.
+Saturn has special aspects: 3rd house (full), 7th house (full), 10th house (full) from its position.
+Rahu and Ketu: Same aspects as their dispositor planet (disputed). Some authorities give them 5th, 7th, 9th aspects like Jupiter.
+
+=== SECTION 5: COMBUSTION (ASTANGATA) ===
+[Source: BPHS, Surya Siddhanta]
+A planet is combust when within these orbs of the Sun:
+Moon: 12°. Mars: 17°. Mercury: 14° (12° when retrograde). Jupiter: 11°. Venus: 10° (8° when retrograde). Saturn: 15°.
+Effects: Combust planet loses power to deliver results of houses it owns. The native struggles to express that planet's significations externally, though internal awareness remains. Combust planet in own sign or exalted: combustion is mitigated. Combust planet in enemy sign: worst results, complete loss of signification.
+Critical rule: A combust planet conjunct Sun within 1° is called "Asta" (completely burnt) and is extremely weakened.
+
+=== SECTION 6: RETROGRESSION (VAKRI) ===
+[Source: Phaladeepika, Saravali]
+Retrograde planets are powerful. A retrograde planet gives results of the previous house. Retrograde benefic (Jupiter/Venus/Mercury) acts like an exalted planet if placed well. Retrograde malefic (Mars/Saturn) intensifies malefic significations but gives unexpected positive results in Upachaya houses (3,6,10,11). Retrograde planet in exaltation acts as debilitated. Retrograde planet in debilitation acts as exalted (Vakri Neecha Bhanga). Retrograde planet in its own sign: highly empowered, gives delayed but supreme results.
+
+=== SECTION 7: HOUSE SIGNIFICATIONS (BHAVA KARAKATVA) ===
+[Source: BPHS Ch.11-12, Phaladeepika Ch.1-13]
+
+HOUSE 1 (Lagna/Tanu Bhava): Physical body, health, vitality, personality, appearance, head, brain, self-identity, fame, overall life direction. Natural karaka: Sun. Strong 1st lord = strong constitution and willpower.
+
+HOUSE 2 (Dhana Bhava): Accumulated wealth, family lineage (kutumba), speech quality, food habits, right eye, face, early education, values, death (maraka sthana). Natural karaka: Jupiter. Malefic here damages family harmony and speech.
+
+HOUSE 3 (Sahaja Bhava): Younger siblings, courage (parakrama), short travels, communication skills, writing, hands/arms/shoulders, hobbies, self-effort, neighbors. Natural karaka: Mars. Malefics perform well here (Upachaya).
+
+HOUSE 4 (Sukha Bhava): Mother, happiness, homeland, vehicles, real estate, education (formal), chest/heart/lungs, emotional inner peace, throne/authority seat. Natural karaka: Moon,Mercury. Afflicted 4th = restless mind.
+
+HOUSE 5 (Putra Bhava): Children, intelligence (buddhi), creativity, romance, past-life merit (purva punya), mantras, speculation/stocks, stomach, higher learning, disciples. Natural karaka: Jupiter. Trikona house = always auspicious.
+
+HOUSE 6 (Ripu/Roga Bhava): Enemies, diseases, debts, litigation, maternal uncle, service/employment, competitive exams, intestines, obstacles. Natural karaka: Mars,Saturn. Malefics here destroy enemies. Dusthana + Upachaya.
+
+HOUSE 7 (Kalatra Bhava): Spouse, marriage, business partnerships, foreign travel, public dealings, lower abdomen, sexual organs, trade, maraka sthana (death-inflicting). Natural karaka: Venus. 7th lord dignity = marriage quality.
+
+HOUSE 8 (Ayu Bhava): Longevity, death circumstances, occult sciences, hidden knowledge, chronic diseases, inheritance, in-laws' wealth, sudden events, transformation, sexual vitality, reproductive organs. Natural karaka: Saturn. Most malefic dusthana.
+
+HOUSE 9 (Bhagya/Dharma Bhava): Father, fortune (bhagya), guru/teacher, long pilgrimages, higher philosophy, religion, law, hips/thighs, past-life dharma, divine grace. Natural karaka: Jupiter,Sun. Greatest trikona = supreme blessing house.
+
+HOUSE 10 (Karma Bhava): Career, profession, fame, public reputation, government authority, knees, actions in society, father's status, karma in this life. Natural karaka: Sun,Mercury,Jupiter,Saturn. Strongest kendra.
+
+HOUSE 11 (Labha Bhava): Gains, income, elder siblings, fulfillment of desires, social networks, ankles/calves, awards, recognition, large organizations. Natural karaka: Jupiter. Greatest Upachaya = anything here gains over time.
+
+HOUSE 12 (Vyaya Bhava): Losses, expenses, foreign lands/settlement abroad, moksha/spiritual liberation, bed pleasures, left eye, feet, hospitals, prisons, isolation, meditation, charity, sleep quality. Natural karaka: Saturn,Ketu. Dusthana but also moksha sthana.
+
+=== SECTION 8: NEECHA BHANGA RAJA YOGA ===
+[Source: BPHS Ch.36, Phaladeepika Ch.7]
+Cancellation of debilitation converts weakness into extraordinary strength. Conditions (any one suffices):
+1. Lord of the sign where planet is debilitated is in kendra from Lagna or Moon.
+2. Lord of the exaltation sign of the debilitated planet is in kendra from Lagna or Moon.
+3. The debilitated planet is aspected by the lord of its debilitation sign.
+4. The debilitated planet is conjunct the planet that is exalted in that sign.
+5. The debilitated planet is in mutual aspect with its exalted sign lord.
+6. The debilitated planet is in kendra from Lagna.
+7. The debilitated planet exchanges signs with another planet (Parivartana Yoga).
+Result: Native faces extreme hardship early in life but achieves spectacular rise later, especially during the dasha of the Neecha Bhanga planet.
+
+=== SECTION 9: MAJOR RAJA YOGAS ===
+[Source: BPHS Ch.36-41, Phaladeepika]
+
+DHARMA-KARMADHIPATI YOGA: Lords of 9th and 10th conjunct or in mutual aspect. Highest career yoga. Native achieves supreme professional status and righteous wealth.
+
+GAJAKESARI YOGA: Jupiter in kendra (1,4,7,10) from Moon. Gives lasting fame, wisdom, learning, wealth, and many children. Strength depends on Jupiter's dignity and aspects.
+
+PANCHA MAHAPURUSHA YOGAS (5 Great Persons):
+- RUCHAKA YOGA: Mars in own sign or exalted in kendra. Warrior, commander, fearless, mark on body.
+- BHADRA YOGA: Mercury in own sign or exalted in kendra. Scholar, eloquent, long life, sharp intellect.
+- HAMSA YOGA: Jupiter in own sign or exalted in kendra. Righteous king, beautiful body, devotee of gods.
+- MALAVYA YOGA: Venus in own sign or exalted in kendra. Beautiful, wealthy, learned, sensual pleasures, fine vehicles.
+- SASHA YOGA: Saturn in own sign or exalted in kendra. Commands servants, leader of village/town, wicked disposition but powerful.
+
+VIPARITA RAJA YOGA: Lord of 6th, 8th, or 12th placed exclusively in another dusthana (6,8,12) without benefic conjunction or aspect. Sudden rise through destruction of enemies or after catastrophic failure. Most powerful when 8th lord is in 12th or 6th lord is in 8th.
+
+DHANA YOGA (Wealth): Lords of 2nd and 11th connected by conjunction, mutual aspect, or exchange. Enhanced if 5th/9th lords also involved. Multiple dhana yogas = multi-millionaire potential.
+
+BUDHADITYA YOGA: Sun and Mercury conjunct. Intelligent, skilled, good reputation. ONLY effective if Mercury is not combust (>14° from Sun) and both are in good dignity.
+
+CHANDRA-MANGALA YOGA: Moon and Mars conjunct or in mutual aspect. Wealth through courage and bold enterprise. Woman's chart: passionate nature, strong will.
+
+ADHI YOGA: Benefics (Jupiter, Venus, Mercury) in 6th, 7th, and 8th from Moon. Gives political power, polite speech, trustworthy nature, destroyer of enemies, long life.
+
+LAKSHMI YOGA: Lord of 9th is strong and in kendra/trikona, and Venus is in own/exalted sign in kendra/trikona. Immense wealth, beautiful spouse, virtuous character.
+
+SARASWATI YOGA: Jupiter, Venus, Mercury in kendras, trikonas, or 2nd house, with Jupiter in own/exalted/friendly sign. Mastery of arts, music, poetry, scriptures. Highly learned.
+
+=== SECTION 10: MALEFIC YOGAS (DOSHAS) ===
+[Source: BPHS, Phaladeepika]
+
+KALA SARPA YOGA: All 7 planets (Sun through Saturn) hemmed between Rahu and Ketu axis. Gives struggle, sudden rises and falls, karmic intensity. If Rahu is leading (all planets after Rahu before Ketu going zodiacally): Kala Sarpa. If Ketu leads: Kala Amrita Yoga (less malefic).
+
+MANGALA DOSHA (Kuja Dosha): Mars in 1st, 2nd, 4th, 7th, 8th, or 12th house from Lagna, Moon, or Venus. Creates obstacles in marriage, aggression in partnerships. Cancelled if: Mars is in own sign/exalted, or spouse also has Mangala Dosha, or Jupiter aspects Mars, or Mars is in Aries/Scorpio/Capricorn in those houses.
+
+KEMDRUM YOGA: Moon with no planet in 2nd or 12th from it, and no planet in kendra from Moon or Lagna. Extreme poverty, struggle, loneliness, mental anguish. Cancelled if Moon is aspected by Jupiter or Venus, or if Moon is in kendra.
+
+GRAHAN YOGA: Sun/Moon conjunct Rahu or Ketu. Eclipse energy in the chart. Sun-Rahu: father problems, ego crises, government troubles. Sun-Ketu: spiritual detachment from father, identity confusion. Moon-Rahu: anxiety, obsessive mind, mother issues. Moon-Ketu: psychic abilities, emotional detachment, spiritual inclination.
+
+SHAKATA YOGA: Jupiter in 6th, 8th, or 12th from Moon. Fluctuating fortune, periods of great success alternating with poverty. Cancelled if Jupiter is in kendra from Lagna.
+
+DARIDRA YOGA (Poverty): Lord of 11th in 6th, 8th, or 12th. Gains are undermined, income through debts or illegal means. Worsened if 2nd lord is also afflicted.
+
+=== SECTION 11: NAKSHATRA CHARACTERISTICS ===
+[Source: BPHS, Hora Ratnam, Brihat Samhita]
+
+1. ASHWINI (0°-13°20' Aries): Ruler=Ketu. Deity=Ashwini Kumaras (Divine Physicians). Nature=Quick healing, speed, initiation. Horse-headed twins. Excellent for beginnings. Dasha lord: Ketu.
+2. BHARANI (13°20'-26°40' Aries): Ruler=Venus. Deity=Yama (God of Death). Nature=Restraint, transformation, bearing burdens. Intense sexuality. Dasha lord: Venus.
+3. KRITTIKA (26°40' Aries-10° Taurus): Ruler=Sun. Deity=Agni (Fire God). Nature=Sharp, cutting, purifying, critical. Foster mothers. Dasha lord: Sun.
+4. ROHINI (10°-23°20' Taurus): Ruler=Moon. Deity=Brahma (Creator). Nature=Growth, beauty, fertility, material abundance. Moon's favorite. Most creative nakshatra. Dasha lord: Moon.
+5. MRIGASHIRA (23°20' Taurus-6°40' Gemini): Ruler=Mars. Deity=Soma (Moon God). Nature=Searching, curious, gentle, deer-like. Perpetual seeker. Dasha lord: Mars.
+6. ARDRA (6°40'-20° Gemini): Ruler=Rahu. Deity=Rudra (Storm God). Nature=Destruction for renewal, tears, transformation, intensity. Intellectual breakthroughs after storms. Dasha lord: Rahu.
+7. PUNARVASU (20° Gemini-3°20' Cancer): Ruler=Jupiter. Deity=Aditi (Mother of Gods). Nature=Return of light, renewal, restoration, optimism. Second chances. Dasha lord: Jupiter.
+8. PUSHYA (3°20'-16°40' Cancer): Ruler=Saturn. Deity=Brihaspati (Divine Guru). Nature=Nourishment, most auspicious nakshatra for spiritual/material matters. Dharmic duty. Dasha lord: Saturn.
+9. ASHLESHA (16°40'-30° Cancer): Ruler=Mercury. Deity=Nagas (Serpent Gods). Nature=Clinging, mystical, poison/medicine, kundalini, deception or deep wisdom. Dasha lord: Mercury.
+10. MAGHA (0°-13°20' Leo): Ruler=Ketu. Deity=Pitris (Ancestors). Nature=Royal throne, ancestral lineage, authority, ceremony, inheritance. Regality. Dasha lord: Ketu.
+11. PURVA PHALGUNI (13°20'-26°40' Leo): Ruler=Venus. Deity=Bhaga (God of Marital Bliss). Nature=Pleasure, romance, relaxation, creativity, luxury. Marriage and sensuality. Dasha lord: Venus.
+12. UTTARA PHALGUNI (26°40' Leo-10° Virgo): Ruler=Sun. Deity=Aryaman (God of Patronage). Nature=Contracts, friendships, leadership through service. Charitable and generous. Dasha lord: Sun.
+13. HASTA (10°-23°20' Virgo): Ruler=Moon. Deity=Savitar (Creative Sun God). Nature=Hand skills, craftsmanship, dexterity, healing hands, cunning. Manifest desires. Dasha lord: Moon.
+14. CHITRA (23°20' Virgo-6°40' Libra): Ruler=Mars. Deity=Tvashtar (Celestial Architect). Nature=Brilliance, beauty, creation, artistic vision. The shining jewel. Dasha lord: Mars.
+15. SWATI (6°40'-20° Libra): Ruler=Rahu. Deity=Vayu (Wind God). Nature=Independence, flexibility, business acumen, diplomacy. Self-propelled. Coral in the wind. Dasha lord: Rahu.
+16. VISHAKHA (20° Libra-3°20' Scorpio): Ruler=Jupiter. Deity=Indra-Agni (Power-Fire). Nature=Determination, single-pointed focus, triumph after struggle. Forked branch. Dasha lord: Jupiter.
+17. ANURADHA (3°20'-16°40' Scorpio): Ruler=Saturn. Deity=Mitra (God of Friendship). Nature=Devotion, friendship, organization, success in foreign lands. Lotus in mud. Dasha lord: Saturn.
+18. JYESHTHA (16°40'-30° Scorpio): Ruler=Mercury. Deity=Indra (King of Gods). Nature=Seniority, protective power, occult mastery, arrogance or wisdom. Eldest/chief. Dasha lord: Mercury.
+19. MOOLA (0°-13°20' Sagittarius): Ruler=Ketu. Deity=Nirriti (Goddess of Destruction). Nature=Root, uprooting, investigation, research, destruction of illusion. Transformative. Gandanta point. Dasha lord: Ketu.
+20. PURVA ASHADHA (13°20'-26°40' Sagittarius): Ruler=Venus. Deity=Apas (Water Deity). Nature=Invincibility, declaration of truth, purification, revival. Undefeated. Dasha lord: Venus.
+21. UTTARA ASHADHA (26°40' Sagittarius-10° Capricorn): Ruler=Sun. Deity=Vishvedevas (Universal Gods). Nature=Final victory, universal, ethical, leadership. Unchallengeable. Dasha lord: Sun.
+22. SHRAVANA (10°-23°20' Capricorn): Ruler=Moon. Deity=Vishnu (Preserver). Nature=Learning through listening, connectivity, media, fame through knowledge. Three footprints. Dasha lord: Moon.
+23. DHANISHTHA (23°20' Capricorn-6°40' Aquarius): Ruler=Mars. Deity=Vasus (Eight Elemental Gods). Nature=Wealth, music, rhythm, abundance, martial energy. Drum beat. Dasha lord: Mars.
+24. SHATABHISHA (6°40'-20° Aquarius): Ruler=Rahu. Deity=Varuna (God of Cosmic Waters). Nature=Healing, seclusion, hundred physicians, mystery, veiling/unveiling truth. Dasha lord: Rahu.
+25. PURVA BHADRAPADA (20° Aquarius-3°20' Pisces): Ruler=Jupiter. Deity=Aja Ekapada (One-footed Serpent). Nature=Scorching, penance, transformation through fire, intense spiritual practice. Dasha lord: Jupiter.
+26. UTTARA BHADRAPADA (3°20'-16°40' Pisces): Ruler=Saturn. Deity=Ahir Budhnya (Serpent of the Deep). Nature=Deep ocean, kundalini, wisdom through surrender, controlled fire. Dasha lord: Saturn.
+27. REVATI (16°40'-30° Pisces): Ruler=Mercury. Deity=Pushan (Nourisher, Guide). Nature=Journey's end, safe travel, nourishment, wealth, transcendence. Final nakshatra. Dasha lord: Mercury.
+
+=== SECTION 12: VIMSHOTTARI DASHA SYSTEM ===
+[Source: BPHS Ch.46-49, Phaladeepika Ch.20]
+
+Total cycle: 120 years. Order and periods:
+Ketu=7 years, Venus=20 years, Sun=6 years, Moon=10 years, Mars=7 years, Rahu=18 years, Jupiter=16 years, Saturn=19 years, Mercury=17 years.
+
+Starting dasha determined by Moon's nakshatra at birth:
+Ketu nakshatras: Ashwini, Magha, Moola.
+Venus nakshatras: Bharani, Purva Phalguni, Purva Ashadha.
+Sun nakshatras: Krittika, Uttara Phalguni, Uttara Ashadha.
+Moon nakshatras: Rohini, Hasta, Shravana.
+Mars nakshatras: Mrigashira, Chitra, Dhanishtha.
+Rahu nakshatras: Ardra, Swati, Shatabhisha.
+Jupiter nakshatras: Punarvasu, Vishakha, Purva Bhadrapada.
+Saturn nakshatras: Pushya, Anuradha, Uttara Bhadrapada.
+Mercury nakshatras: Ashlesha, Jyeshtha, Revati.
+
+DASHA INTERPRETATION RULES:
+1. Mahadasha lord sets the THEME of the period based on houses it owns.
+2. Antardasha lord delivers SPECIFIC EVENTS based on its house ownership, placement, and relationship with Mahadasha lord.
+3. If Antardasha lord is 6th or 8th from Mahadasha lord: disease, enmity, accidents, friction (Shadashtaka).
+4. If Antardasha lord is 2nd or 12th from Mahadasha lord: loss, expenditure, change of place.
+5. If Antardasha lord is 5th or 9th from Mahadasha lord: high fortune, children, spiritual merit (Trikona).
+6. If Antardasha lord is in mutual kendras (1,4,7,10) with Mahadasha lord: productive action, support.
+7. Dasha of yogakaraka planet: best period of life. Dasha of functional malefic: challenging period.
+8. Dasha of maraka planet (lord of 2nd or 7th): health crises, near-death experiences, actual death in old age.
+
+=== SECTION 13: JAIMINI CHARA KARAKAS ===
+[Source: Jaimini Sutras Ch.1]
+Determined by descending degree in sign (excluding Rahu):
+1. Atma Karaka (AK): Highest degree. Soul's desire. King of chart. Its sign in D9 = Karakamsa.
+2. Amatya Karaka (AmK): 2nd highest. Career, profession, sustenance. Minister.
+3. Bhratru Karaka (BK): 3rd highest. Siblings, guru, courage.
+4. Matru Karaka (MK): 4th highest. Mother, property, vehicles, heart.
+5. Putra Karaka (PK): 5th highest. Children, intelligence, creativity.
+6. Gnati Karaka (GK): 6th highest. Enemies, disease, obstacles. The adversary.
+7. Dara Karaka (DK): Lowest degree. Spouse, partnerships.
+
+KARAKAMSA ANALYSIS:
+10th from Karakamsa: supreme career direction.
+Benefic in 1st from Karakamsa: spiritual, learned.
+Sun in Karakamsa: government work. Moon: trade in liquids. Mars: fire, weapons, police. Mercury: business, commerce. Jupiter: philosophy, teaching, dharma. Venus: politics, poetry, arts. Saturn: traditional occupation.
+12th from Karakamsa: path to moksha. Ketu here = moksha assured. Saturn here = devoted to God.
+
+=== SECTION 14: YOGAKARAKA PLANETS BY ASCENDANT ===
+[Source: BPHS Ch.34, Phaladeepika]
+
+ARIES LAGNA: Yogakaraka=None specifically. Sun (5th lord), Jupiter (9th lord) most benefic. Saturn (10th+11th) is neutral. Mars as lagna lord is auspicious.
+TAURUS LAGNA: Yogakaraka=Saturn (9th+10th lord). Most auspicious single planet. Sun (4th lord) also good. Jupiter (8th+11th) is malefic.
+GEMINI LAGNA: No single yogakaraka. Venus (5th+12th) and Saturn (8th+9th) mixed. Mercury as lagna lord must be strong.
+CANCER LAGNA: Yogakaraka=Mars (5th+10th lord). Supreme benefic. Jupiter (6th+9th) mixed but mostly good as 9th lord.
+LEO LAGNA: Yogakaraka=Mars (4th+9th lord). Both kendra and trikona lord. Jupiter (5th+8th) mixed.
+VIRGO LAGNA: No single yogakaraka. Mercury as lagna lord and Venus (2nd+9th) are good. Mars (3rd+8th) is malefic.
+LIBRA LAGNA: Yogakaraka=Saturn (4th+5th lord). Kendra+Trikona. Moon (10th lord) is functional benefic.
+SCORPIO LAGNA: No single yogakaraka. Jupiter (2nd+5th) and Moon (9th) are benefic. Venus (7th+12th) is maraka/malefic.
+SAGITTARIUS LAGNA: No single yogakaraka. Sun (9th) and Mars (5th+12th) are benefic. Venus (6th+11th) is malefic.
+CAPRICORN LAGNA: Yogakaraka=Venus (5th+10th lord). Supreme benefic. Mercury (6th+9th) mixed. Mars (4th+11th) mixed.
+AQUARIUS LAGNA: Yogakaraka=Venus (4th+9th lord). Kendra+Trikona. Mars (3rd+10th) and Jupiter (2nd+11th) give mixed results.
+PISCES LAGNA: No single yogakaraka. Mars (2nd+9th) and Moon (5th) are most benefic. Mercury (4th+7th) is maraka.
+
+=== SECTION 15: TRANSITS FROM MOON (GOCHAR) ===
+[Source: Phaladeepika Ch.26, BPHS]
+All transits must be read from natal Moon sign (Chandra Lagna):
+Saturn: Good in 3,6,11 from Moon. Bad in 1,2,4,5,7,8,9,10,12.
+Jupiter: Good in 2,5,7,9,11 from Moon. Bad in 1,3,4,6,8,10,12.
+Rahu: Good in 3,6,10,11 from Moon. Bad in rest.
+Sun: Good in 3,6,10,11 from Moon. Bad in rest.
+Mars: Good in 3,6,11 from Moon. Bad in rest.
+Mercury: Good in 2,4,6,8,10,11 from Moon. Bad in rest.
+Venus: Good in 1,2,3,4,5,8,9,11,12 from Moon. Bad in 6,7,10.
+Moon: Good in 1,3,6,7,10,11 from Moon. Bad in rest.
+
+SADE SATI: Saturn transiting 12th, 1st, and 2nd from natal Moon (7.5 years total, 2.5 years each phase).
+Phase 1 (12th from Moon): Mental pressure, sleep issues, financial loss, separation from family.
+Phase 2 (1st from Moon/over natal Moon): Peak intensity. Health, identity crisis, career upheaval.
+Phase 3 (2nd from Moon): Financial pressure, family discord, speech problems, loss through death.
+
+=== SECTION 16: DIVISIONAL CHARTS (VARGA) ===
+[Source: BPHS Ch.6-7]
+D1 (Rashi): Physical body, overall life. THE primary chart.
+D2 (Hora): Wealth and financial prosperity. Sun hora = earned by self. Moon hora = inherited/received.
+D3 (Drekkana): Siblings, courage, creativity. Co-borns.
+D4 (Chaturthamsha): Fortune, property, fixed assets, mother.
+D7 (Saptamsha): Children, progeny, creative output.
+D9 (Navamsha): CRITICAL. Spouse, marriage, dharma, true strength of planets. Second half of life. "A planet strong in D1 but weak in D9 fails to deliver. A planet weak in D1 but strong in D9 delivers eventually." Vargottama planet (same sign in D1 and D9) is extremely powerful.
+D10 (Dashamsha): Career, profession, public status, achievement.
+D12 (Dwadashamsha): Parents, ancestry, lineage.
+D16 (Shodashamsha): Vehicles, comforts, luxury, property.
+D20 (Vimshamsha): Spiritual progress, meditation, worship.
+D24 (Chaturvimshamsha): Education, learning, academic achievements.
+D27 (Saptavimshamsha): Strength, vitality, physical prowess.
+D30 (Trimshamsha): Evils, misfortunes, chronic diseases.
+D40 (Khavedamsha): Auspicious and inauspicious effects.
+D45 (Akshavedamsha): General well-being, all matters.
+D60 (Shashtiamsha): MOST MICROSCOPIC. Past life karmas. "When two charts are identical, D60 differentiates." Each D60 portion has a specific name and result.
+
+=== SECTION 17: PLANETARY KARAKATVA (NATURAL SIGNIFICATIONS) ===
+[Source: BPHS, Uttara Kalamrita]
+SUN: Soul (Atma), father, government, authority, power, ego, bones, heart, right eye, gold, copper, wheat, Sunday, East direction, Ruby gemstone.
+MOON: Mind (Mana), mother, emotions, public, fluids, blood, left eye, silver, rice, Monday, Northwest direction, Pearl gemstone. Waxing Moon is benefic, Waning Moon (Krishna Paksha) especially near Amavasya is malefic.
+MARS: Energy (Virya), brothers, courage, land, surgery, military, police, fire, accidents, blood diseases, muscles, Tuesday, South direction, Red Coral gemstone.
+MERCURY: Intelligence (Buddhi), speech, communication, trade, mathematics, astrology, skin, nervous system, education, friends, Wednesday, North direction, Emerald gemstone.
+JUPITER: Wisdom (Gyana), guru, children, husband (in female chart), dharma, law, fat tissue, liver, wealth, expansion, Thursday, Northeast direction, Yellow Sapphire gemstone.
+VENUS: Love (Kama), wife (in male chart), marriage, beauty, arts, luxury, semen, kidneys, vehicles, poetry, Friday, Southeast direction, Diamond gemstone.
+SATURN: Grief (Shoka), servants, old age, death, chronic disease, delays, hard work, iron, oil, black sesame, Saturday, West direction, Blue Sapphire gemstone. Most feared but also most transformative teacher.
+RAHU: Obsession, foreign, outcaste, illusion (Maya), paternal grandfather, sudden events, technology, chemicals, snake, Southwest direction, Hessonite (Gomed) gemstone. Amplifies the energy of any planet it conjoins.
+KETU: Liberation (Moksha), maternal grandfather, spirituality, sudden detachment, past-life merit, psychic ability, headless (no logic, pure intuition), flag, Southwest direction, Cat's Eye (Lehsunia) gemstone.
+
+=== SECTION 18: SPECIAL PLANETARY COMBINATIONS ===
+[Source: Phaladeepika, Saravali]
+
+SUN-MOON conjunction: Amavasya (New Moon) birth. Emotional and identity merge. Difficulty distinguishing self from emotions. Strong if in good dignity.
+SUN-MARS conjunction: Angarak Yoga. Aggressive, authoritative, accident-prone. Good for military/police.
+SUN-MERCURY conjunction: Budhaditya Yoga. Only effective if Mercury > 14° from Sun (not combust). Intellectual, administrative.
+SUN-JUPITER conjunction: Guru-Aditya Yoga. Wise, righteous, government favor, but Jupiter combust if < 11°.
+SUN-VENUS conjunction: Romantic frustration (Venus combust), artistic but relationships strained.
+SUN-SATURN conjunction: Father problems, authority struggles, delayed career rise, but eventually powerful if in good sign.
+SUN-RAHU conjunction: Grahan Yoga. Father's health issues, ego crises, government problems, eclipse energy.
+SUN-KETU conjunction: Sanyasa tendency, spiritual ego dissolution, father detachment.
+
+MOON-MARS conjunction: Chandra-Mangala Yoga. Wealth through courage, emotional aggression. Mangala Dosha implications.
+MOON-MERCURY conjunction: Quick mind, literary skill, humor, restlessness.
+MOON-JUPITER conjunction: Gajakesari Yoga (if in kendra). Wisdom, fame, prosperity, good mother.
+MOON-VENUS conjunction: Luxury, beauty, comfort, artistic. Too much indulgence possible.
+MOON-SATURN conjunction: Vish Yoga (Poison Yoga). Depression, mother's suffering, emotional coldness, delayed happiness. Cancelled if Jupiter aspects.
+MOON-RAHU conjunction: Grahan Yoga. Anxiety, obsessive thinking, powerful material drive, mother complications.
+MOON-KETU conjunction: Spiritual detachment, psychic abilities, emotional numbness, past-life spiritual merits.
+
+MARS-SATURN conjunction: Extreme discipline or extreme destruction. "Gas and brake simultaneously." Accident risk. If well-placed: surgical skill, engineering mastery. If afflicted: danger, violence.
+JUPITER-SATURN conjunction: Brahma Yoga. Philosophical, systematic wisdom. Slow but lasting success. Oscillation between expansion and contraction.
+JUPITER-RAHU conjunction: Guru Chandal Yoga. Corruption of wisdom, breaking of traditions, unconventional guru.
+If Jupiter is strong and Rahu is well-placed: genius-level unconventional thinking, foreign guru.
+VENUS-SATURN conjunction: Delayed marriage, love through hardship, artistic dedication, lasting relationships after struggle.
+VENUS-RAHU conjunction: Obsessive love, foreign spouse, unconventional relationships.
+VENUS-KETU conjunction: Spiritual love, detachment from material pleasures, past-life artistic skill.
+
+=== SECTION 19: REMEDIAL MEASURES (UPAYAS) ===
+[Source: BPHS, Lal Kitab, Traditional Practice]
+
+CRITICAL RULE: Never wear gemstone for a debilitated or afflicted planet — it amplifies toxic energy.
+Only strengthen planets that are: (a) yogakaraka, (b) in own sign/exalted, (c) functional benefic.
+
+SUN remedies: Surya Namaskar at sunrise, offer water to Sun with copper vessel, wear Ruby in gold on ring finger on Sunday during Shukla Paksha, donate wheat/jaggery.
+MOON remedies: Wear Pearl/Moonstone in silver on little finger on Monday, donate white rice/milk, worship Lord Shiva, practice meditation for mental strength.
+MARS remedies: Wear Red Coral in gold/copper on ring finger on Tuesday, Hanuman Chalisa recitation, donate red lentils/jaggery, physical exercise.
+MERCURY remedies: Wear Emerald in gold on little finger on Wednesday, donate green moong dal, practice pranayama for speech clarity, worship Lord Vishnu.
+JUPITER remedies: Wear Yellow Sapphire in gold on index finger on Thursday, serve gurus/teachers, donate yellow items/turmeric, study scriptures.
+VENUS remedies: Wear Diamond/White Sapphire in platinum/silver on middle finger on Friday, donate white silk/sugar, worship Lakshmi, maintain hygiene.
+SATURN remedies: Wear Blue Sapphire ONLY after trial period in iron/silver on middle finger Saturday, serve elderly/disabled, donate black sesame/iron, practice patience.
+RAHU remedies: Wear Hessonite in silver on middle finger on Saturday, donate coconut/black blanket, Durga/Kali worship, avoid intoxicants.
+KETU remedies: Wear Cat's Eye in gold on middle finger on Tuesday/Saturday, donate spotted blanket/brown items, Ganesh worship, practice detachment meditation.
+
+=== SECTION 20: HOUSE LORD PLACEMENT RESULTS ===
+[Source: Phaladeepika, BPHS Ch.24-35]
+
+1ST LORD IN HOUSES:
+1st lord in 1st: Strong personality, self-made, healthy, good longevity.
+1st lord in 2nd: Wealth through own effort, good speech, family person.
+1st lord in 3rd: Courageous, skilled with hands, good siblings.
+1st lord in 4th: Happy, educated, owns property, close to mother.
+1st lord in 5th: Intelligent, romantic, good children, past-life merit.
+1st lord in 6th: Sickly in youth but overcomes enemies, service-oriented.
+1st lord in 7th: Spouse-dependent, business-minded, foreign connections.
+1st lord in 8th: Weak constitution, interest in occult, inheritance, chronic issues.
+1st lord in 9th: Fortunate, religious, father's blessings, long travels.
+1st lord in 10th: Career-focused, famous, powerful, public figure.
+1st lord in 11th: Gains easily, social, elder sibling support, desires fulfilled.
+1st lord in 12th: Expenses exceed income, foreign settlement, spiritual inclination, hospitalization.
+
+KEY RESULT PATTERNS:
+Any house lord in its OWN house: Excellent results for that house.
+Any house lord EXALTED: Superior results, effortless success in that domain.
+Any house lord DEBILITATED: Struggle, frustration, failure in that domain unless Neecha Bhanga applies.
+Any house lord in DUSTHANA (6,8,12): Damage to the significations of the house it rules.
+Trikona lord in Kendra or Kendra lord in Trikona: Raja Yoga formation.
+Dusthana lord in Dusthana: Viparita Raja Yoga (evil destroys evil).
+=== SECTION 21: PLANETARY DIGNITY SCORING (SHADBALA PRINCIPLES) ===
+[Source: BPHS Ch.27, Graha & Bhava Balas]
+A planet's true strength is measured across 6 dimensions:
+1. STHANA BALA (Positional): Exaltation=60, Moola Trikona=45, Own Sign=30, Friendly=15, Neutral=7.5, Enemy=3.75, Debilitated=0.
+2. DIG BALA (Directional): Jupiter/Mercury strong in 1st (East). Sun/Mars strong in 10th (South). Saturn strong in 7th (West). Moon/Venus strong in 4th (North). Opposite direction=0 dig bala.
+3. KALA BALA (Temporal): Sun/Jupiter/Mars strong during day. Moon/Venus/Saturn strong at night. Mercury strong always.
+4. CHESHTA BALA (Motional): Retrograde planet gets maximum cheshta bala. Fast-moving planet gets less.
+5. NAISARGIKA BALA (Natural): Sun=60, Moon=51.4, Mars=17.1, Mercury=25.7, Jupiter=34.3, Venus=42.8, Saturn=8.6.
+6. DRIK BALA (Aspectual): Benefic aspects add strength. Malefic aspects reduce strength.
+
+=== SECTION 22: ASHTAKAVARGA SYSTEM ===
+[Source: BPHS Ch.66-72]
+Each planet contributes benefic points (bindus) to signs. Maximum 8 bindus per sign per planet.
+Total points per sign across all planets: Sarvashtakavarga (SAV). Maximum 56 per sign.
+SAV > 30 in a sign: Extremely strong house. Planets transiting here give excellent results.
+SAV 25-30: Good results. SAV < 25: Weak house, planets transiting give poor results.
+SAV < 20: Very weak house — any transit here brings suffering.
+Individual planet's Bhinnashtakavarga: > 4 bindus = good transit results. < 4 = bad transit results.
+KEY RULE: Saturn transiting a sign with SAV < 25 during Sade Sati = worst period.
+Jupiter transiting a sign with SAV > 28 = phenomenal fortune.
+
+=== SECTION 23: BHAVA CHALIT (HOUSE VS SIGN DISTINCTION) ===
+[Source: BPHS, Ganita section]
+Rashi chart (D1) shows SIGN placements. Bhava Chalit shows HOUSE placements.
+A planet at 28° Aries with Ascendant at 5° Aries: In Aries by sign but shifted to 2nd house in Bhava Chalit.
+CRITICAL RULE: For predicting RESULTS, use Bhava Chalit house placement. For dignity/strength, use Rashi sign.
+A planet can own one house by sign but deliver results of the adjacent house in Bhava Chalit.
+
+=== SECTION 24: GANDANTA (KARMIC KNOT) ===
+[Source: BPHS, Nadi Texts]
+Junction points between water and fire signs: last 3°20' of Cancer/Scorpio/Pisces and first 3°20' of Leo/Sagittarius/Aries.
+Nakshatras at gandanta: Ashlesha-Magha junction, Jyeshtha-Moola junction, Revati-Ashwini junction.
+Moon in gandanta: Extreme emotional turmoil, karmic intensity from past lives. Moola gandanta most severe — "uprooting" of family/stability.
+Any planet in gandanta: That planet's significations undergo intense karmic transformation. Not necessarily bad — can indicate extraordinary spiritual evolution.
+Jyeshtha-Moola gandanta: Most dangerous. Associated with family separation, early life crises, but immense spiritual power.
+
+=== SECTION 25: PUSHKARA NAVAMSHA AND PUSHKARA BHAGA ===
+[Source: Nadi Jyotish, Tajika]
+Pushkara Navamshas: Special navamsha divisions that greatly empower any planet placed in them.
+In each sign, specific degree ranges fall in Pushkara Navamsha:
+Aries/Leo/Sagittarius: 3°20'-6°40' and 23°20'-26°40'.
+Taurus/Virgo/Capricorn: 6°40'-10° and 20°-23°20'.
+Gemini/Libra/Aquarius: 16°40'-20° and 26°40'-30°.
+Cancer/Scorpio/Pisces: 0°-3°20' and 13°20'-16°40'.
+Planet in Pushkara Navamsha: Nourished, protected, gives excellent results regardless of other conditions.
+Pushkara Bhaga (specific degrees): Even more powerful. Each sign has specific lucky degrees.
+
+=== SECTION 26: VARGOTTAMA ===
+[Source: BPHS Ch.7]
+A planet in the same sign in both Rashi (D1) and Navamsha (D9) is Vargottama.
+First navamsha of fire signs (0°-3°20' of Aries/Leo/Sagittarius): Vargottama.
+Middle navamsha of earth signs (13°20'-16°40' of Taurus/Virgo/Capricorn): Vargottama.
+7th navamsha of air signs (20°-23°20' of Gemini/Libra/Aquarius): Vargottama.
+Last navamsha of water signs (26°40'-30° of Cancer/Scorpio/Pisces): Vargottama.
+Vargottama planet: Nearly as strong as exalted. Consistent results in both material and spiritual life.
+Vargottama Lagna: Very strong ascendant. Native has clarity of purpose and strong personality.
+
+=== SECTION 27: ATMAKARAKA IN NAVAMSHA (KARAKAMSA DEEP ANALYSIS) ===
+[Source: Jaimini Sutras Ch.1-2]
+Planets in Karakamsa determine life path:
+Sun in Karakamsa: Government service, political career, administrative power.
+Moon in Karakamsa: Agriculture, nursing, hospitality, liquid trade, textiles.
+Mars in Karakamsa: Metallurgy, surgery, police, military, fire department, engineering.
+Mercury in Karakamsa: Sculpting, writing, commerce, accounting, IT, astrology.
+Jupiter in Karakamsa: Philosophy, teaching, priesthood, vedic studies, law, judiciary.
+Venus in Karakamsa: Politics, performing arts, luxury goods, diplomacy, poetry.
+Saturn in Karakamsa: Carries father's trade, traditional occupation, labor-intensive work.
+Rahu in Karakamsa: Foreign lands career, thieves/spies, unconventional path, technology.
+Ketu in Karakamsa: Watchmaking, mathematics, occult, spiritual healing.
+
+=== SECTION 28: NADI AMSHA (ADVANCED NAKSHATRA SUB-DIVISIONS) ===
+[Source: Nadi Texts, Chandra Hari's Nadi]
+Each nakshatra pada has 9 sub-divisions (navamsha within navamsha = 150 total divisions of zodiac).
+Level of analysis: Planet's behavior changes based on sub-lord within nakshatra.
+Sub-lord sequence in each pada follows Vimshottari order starting from pada's ruler.
+CRITICAL: Two charts with same rashi placements but different nadi amsha will have completely different results.
+This is why D60 (Shashtiamsha) is considered the most microscopic and differentiating divisional chart.
+
+=== SECTION 29: ARGALA (PLANETARY INTERVENTION) ===
+[Source: Jaimini Sutras Ch.1]
+Argala = intervention/influence of planets on a house.
+2nd from any house: Dhana Argala (wealth intervention). Strongest material influence.
+4th from any house: Sukha Argala (happiness intervention). Emotional/comfort influence.
+11th from any house: Labha Argala (gains intervention). Support and fulfillment.
+5th from any house: Putra Argala (progeny/intelligence intervention).
+Obstruction: 12th from house obstructs 2nd. 10th obstructs 4th. 3rd obstructs 11th. 9th obstructs 5th.
+A benefic in argala position strengthens the house. Malefic in argala position damages the house.
+If obstruction planet is stronger than argala planet: Argala is nullified.
+
+=== SECTION 30: ARUDHA PADAS (MAYA/PERCEPTION) ===
+[Source: Jaimini Sutras Ch.1]
+Arudha = image/perception of a house in the world's eyes. How others see you.
+Arudha Lagna (AL): Count from 1st lord to 1st house, then same distance further = AL. Shows worldly image, social status, how society perceives you. Different from true self (Lagna).
+A10 (Rajapada): Arudha of 10th house. Public career image, fame, authority perceived by world.
+A7 (Darapada): Arudha of 7th house. How your relationship/marriage appears to others.
+A2 (Dhana Pada): Arudha of 2nd house. How wealthy you appear to be.
+UL (Upapada Lagna): Arudha of 12th house. Quality and nature of marriage partner's family.
+CRITICAL: Planets in or aspecting AL determine social status. Benefics on AL = respected. Malefics = scandalous image.
+
+=== SECTION 31: HORA LAGNA AND GHATI LAGNA ===
+[Source: BPHS Ch.5]
+Hora Lagna: Moves one sign every 2.5 hours. Connected to wealth and financial timing.
+Planets associated with Hora Lagna: Indicate sources and timing of wealth acquisition.
+If 2nd/11th lord from Hora Lagna is strong: Wealth comes easily.
+Ghati Lagna: Moves one sign every ~5 minutes. Connected to power, authority.
+Planets associated with Ghati Lagna: Indicate timing of rise to power.
+Both are used for fine-tuning predictions beyond regular Lagna analysis.
+
+=== SECTION 32: TITHI AND LUNAR DAY ANALYSIS ===
+[Source: Muhurta Chintamani, BPHS]
+30 Tithis in a lunar month (15 Shukla/waxing + 15 Krishna/waning).
+Birth on Purnima (Full Moon): Emotional, public life, fame, strong mind.
+Birth on Amavasya (New Moon): Introverted, secretive, occult tendencies, Sun-Moon conjunction.
+Birth on Chaturthi (4th): Obstacles from Ganesh karma, needs propitiation.
+Birth on Ashtami (8th): Constant transformation, occult interests, health fluctuations.
+Birth on Navami (9th): Protected by Mars energy, aggressive, military inclination.
+Birth on Ekadashi (11th): Spiritual, fasting brings merit, Vishnu devotion.
+Birth on Chaturdashi (14th): Shiva energy, unconventional, fierce, transformative.
+Janma Tithi lord: Planet ruling birth tithi influences core personality beneath rashi/nakshatra.
+
+=== SECTION 33: SUDARSHANA CHAKRA (TRIPLE LAGNA ANALYSIS) ===
+[Source: BPHS Ch.64]
+Three simultaneous charts read together:
+1. From Ascendant Lagna: Physical body, material life, actions.
+2. From Moon Lagna (Chandra Lagna): Mind, emotions, psychological experience.
+3. From Sun Lagna (Surya Lagna): Soul, ego, authority, father, career.
+Rule: An event manifests ONLY when indicated from at least 2 out of 3 lagnas.
+If a yoga exists from Lagna AND Moon: Will manifest. From Lagna only: Physical potential but no emotional drive.
+Sudarshana Dasha: Each house activates for 1 year from all 3 lagnas simultaneously.
+
+=== SECTION 34: ECLIPSES IN BIRTH CHART ===
+[Source: BPHS, Surya Siddhanta]
+Born during solar eclipse (Sun-Rahu/Ketu conjunction within close orb):
+Intense karmic birth. Father figure eclipsed. Soul path involves overcoming ego death.
+Power to influence masses but through unconventional means. Government obstacles.
+Born during lunar eclipse (Moon-Rahu/Ketu conjunction within close orb):
+Emotional intensity, psychic sensitivity, mother's health issues.
+Public influence, connection to masses' emotions. Anxiety and mental fluctuations.
+Pre-natal eclipse point: The eclipse that occurred before birth activates a sensitive degree.
+Transits over pre-natal eclipse degree trigger major life events.
+
+=== SECTION 35: MARAKA (DEATH-INFLICTING) PLANETS ===
+[Source: BPHS Ch.44, Phaladeepika Ch.13]
+2nd and 7th house lords are natural maraka (death-inflicting) planets.
+They cause health crises during their dashas, especially in old age.
+Strongest maraka: Planet that is both 2nd/7th lord AND occupies a maraka house.
+Saturn is natural maraka for all charts (karaka for death/longevity).
+If 2nd lord is in 7th or 7th lord is in 2nd: Strong maraka combination.
+Badhaka (Obstruction):
+For movable (chara) signs: 11th lord is badhaka. For fixed (sthira) signs: 9th lord is badhaka. For dual (dvisvabhava) signs: 7th lord is badhaka.
+Badhaka planet's dasha brings inexplicable obstacles, spiritual disturbances.
+
+=== SECTION 36: PLANETARY WAR (GRAHA YUDDHA) ===
+[Source: BPHS Ch.3, Surya Siddhanta]
+When two planets (excluding Sun, Moon, Rahu, Ketu) are within 1° of each other.
+The planet with lower longitude wins the war. The defeated planet loses power.
+Mars-Mercury war: Communication becomes aggressive or intelligence serves military purposes.
+Jupiter-Venus war: Wisdom vs pleasure conflict. Marital wisdom or spiritual luxury.
+Mars-Saturn war: Extreme tension. Can indicate accidents, violence, or extraordinary discipline.
+Winner of planetary war becomes stronger than usual. Loser becomes severely weakened.
+
+=== SECTION 37: PANCHANGA ELEMENTS ===
+[Source: Muhurta texts, BPHS supplement]
+Five limbs of time at birth:
+1. VARA (Day): Sunday=Sun, Monday=Moon, Tuesday=Mars, Wednesday=Mercury, Thursday=Jupiter, Friday=Venus, Saturday=Saturn.
+2. TITHI (Lunar day): 30 per month, groups of 5 have specific qualities.
+3. NAKSHATRA (Lunar mansion): Moon's nakshatra at birth = Janma Nakshatra.
+4. YOGA (Sun-Moon combination): 27 yogas from combined longitude. Vishkamba, Preeti, Ayushman, etc.
+5. KARANA (Half-tithi): 11 karanas, each governing specific activities.
+An auspicious panchanga at birth: Native has inherent good fortune.
+
+=== SECTION 38: UPACHAYA GROWTH PRINCIPLE ===
+[Source: Phaladeepika, BPHS]
+Houses 3, 6, 10, 11 are Upachaya (houses of growth).
+Malefic planets (Sun, Mars, Saturn, Rahu) in Upachaya houses IMPROVE with age.
+Mars in 3rd: Courage grows. Mars in 6th: Defeats enemies. Mars in 10th: Career power. Mars in 11th: Wealth through effort.
+Saturn in 3rd: Discipline. Saturn in 6th: Destroys diseases/enemies. Saturn in 10th: Lasting career. Saturn in 11th: Steady gains.
+Benefic planets in Upachaya are moderate — they prefer Kendras and Trikonas.
+KEY: A chart with malefics stacked in Upachaya houses improves dramatically after age 30-36.
+
+=== SECTION 39: DISPOSITOR CHAIN ===
+[Source: Advanced Parashari Analysis]
+Every planet is "disposed" by the lord of the sign it occupies.
+Following the dispositor chain reveals the FINAL DISPOSITOR — the planet that ultimately controls the chart.
+If a planet is in its own sign: It is self-disposed and becomes a final dispositor.
+If two planets are in each other's signs: Mutual reception (Parivartana Yoga) — they share power.
+A chart with a single final dispositor: Life has clear direction. That planet's significations dominate.
+A chart with a mutual reception as final dispositor: Life oscillates between two themes.
+
+=== SECTION 40: MEDICAL ASTROLOGY (ROGA JYOTISH) ===
+[Source: BPHS, Prasna Marga]
+Each sign rules body parts: Aries=Head, Taurus=Face/Throat, Gemini=Arms/Lungs, Cancer=Chest/Stomach, Leo=Heart/Spine, Virgo=Intestines/Nervous System, Libra=Kidneys/Lower Back, Scorpio=Reproductive Organs, Sagittarius=Hips/Thighs, Capricorn=Knees/Bones, Aquarius=Ankles/Circulation, Pisces=Feet/Lymphatic.
+6th house lord: Indicates type of disease. In fire sign=fever/inflammation. In water sign=cold/phlegm. In earth sign=structural/chronic. In air sign=nervous/mental.
+6th lord conjunct/aspected by:
+Sun: Heart, bone, eye diseases. Moon: Digestive, fluid retention. Mars: Surgery, blood disorders, accidents. Mercury: Skin, nervous disorders. Jupiter: Liver, fat-related, diabetes. Venus: Kidney, reproductive, urinary. Saturn: Chronic pain, arthritis, depression.
+8th house affliction: Chronic/incurable conditions, surgeries, hidden illnesses.

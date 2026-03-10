@@ -1,0 +1,11 @@
+{
+    "name": "newtown-3d-map-frontend",
+    "version": "1.0.0",
+    "description": "Frontend UI for the New Town 3D Interactive Map System",
+    "scripts": {
+        "start": "serve -p 8080"
+    },
+    "dependencies": {
+        "serve": "^14.2.1"
+    }
+}
