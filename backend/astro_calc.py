@@ -925,6 +925,11 @@ def compute_natal_chart(dob_str, tob_str, lat, lon):
 
     # Bhava lords
     bhava_lords = compute_bhava_lords(asc_sign_idx, planets)
+    
+    # Inject Atmakaraka and House into individual planet dictionaries
+    for name, pdata in planets.items():
+        pdata["house"] = house_positions.get(name)
+        pdata["is_atmakaraka"] = (name == ak_name)
 
     # Panchada friendships
     friendships = compute_panchada_friendships(planets)
@@ -954,7 +959,10 @@ def compute_natal_chart(dob_str, tob_str, lat, lon):
         "yogas": yogas,
         "navamsha": navamsha,
         "dasamsa": dasamsa,
-        "atmakaraka": {"planet": ak_name, "degree": ak_degree},
+        "special_lagnas": {
+            "atmakaraka": ak_name,
+            "atmakaraka_degree": ak_degree
+        },
         "graha_yuddha": graha_yuddha,
         "sade_sati": sade_sati,
         "bhava_lords": bhava_lords,
