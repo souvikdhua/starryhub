@@ -983,7 +983,7 @@ def compute_vimshottari_dasha(moon_nak_idx, moon_nak_balance, dob_str):
     start_idx = DASHA_SEQUENCE.index(start_lord)
 
     remaining_years = DASHA_YEARS[start_lord] * moon_nak_balance
-    remaining_days = remaining_years * 365.25
+    remaining_days = remaining_years * 365.24219
 
     mahadashas = []
     cursor = dob
@@ -1002,7 +1002,7 @@ def compute_vimshottari_dasha(moon_nak_idx, moon_nak_balance, dob_str):
         idx = (start_idx + i) % 9
         lord = DASHA_SEQUENCE[idx]
         years = DASHA_YEARS[lord]
-        end = cursor + datetime.timedelta(days=years * 365.25)
+        end = cursor + datetime.timedelta(days=years * 365.24219)
         mahadashas.append({
             "lord": lord,
             "start": cursor.strftime("%Y-%m-%d"),
@@ -1392,7 +1392,7 @@ def get_current_dasha(date_to_calc=None):
     ad_years = 0
 
     for ad_name, ad_lord_years in ad_sequence_ordered:
-        ad_days = (md_total_years * ad_lord_years * 365.25) / 120
+        ad_days = (md_total_years * ad_lord_years * 365.24219) / 120
         ad_end = ad_start + datetime.timedelta(days=ad_days)
         if ad_start <= date_to_calc < ad_end:
             current_ad = ad_name
@@ -1407,7 +1407,7 @@ def get_current_dasha(date_to_calc=None):
     pd_start = ad_start
 
     for pd_name, pd_lord_years in pd_sequence_ordered:
-        pd_days = (ad_years * pd_lord_years * md_total_years * 365.25) / (120 * 120)
+        pd_days = (ad_years * pd_lord_years * md_total_years * 365.24219) / (120 * 120)
         pd_end = pd_start + datetime.timedelta(days=pd_days)
         if pd_start <= date_to_calc < pd_end:
             current_pd = pd_name
