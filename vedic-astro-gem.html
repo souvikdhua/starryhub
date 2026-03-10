@@ -348,6 +348,60 @@
             cursor: not-allowed;
         }
 
+        /* ─── City Dropdown ─── */
+        .city-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 50;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 4px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+        }
+
+        .city-dropdown.hidden {
+            display: none;
+        }
+
+        .city-dropdown::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .city-dropdown::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .city-option {
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: var(--sans);
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .city-option:last-child {
+            border-bottom: none;
+        }
+
+        .city-option:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+
         .form-error {
             color: #666;
             font-size: 0.75rem;
@@ -1178,9 +1232,12 @@
                     <label>at</label>
                     <input type="time" id="tobInput" step="1" value="">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="position: relative;">
                     <label>where</label>
-                    <input type="text" id="placeInput" placeholder="city, country" value="">
+                    <input type="text" id="placeInput" placeholder="city, country" value="" autocomplete="off">
+                    <div id="cityDropdown" class="city-dropdown hidden"></div>
+                    <input type="hidden" id="cityLat" value="">
+                    <input type="hidden" id="cityLon" value="">
                 </div>
                 <button class="chart-btn" id="chartBtn" onclick="generateFullReading()">show me</button>
                 <div class="form-error" id="formError"></div>
@@ -1540,6 +1597,8 @@ Do not output XML thinking tags. Only output the final text.
             const dob = document.getElementById('dobInput').value;
             const tobRaw = document.getElementById('tobInput').value;
             const place = document.getElementById('placeInput').value.trim();
+            const lat = document.getElementById('cityLat').value;
+            const lon = document.getElementById('cityLon').value;
             const errorEl = document.getElementById('formError');
 
             if (!dob || !tobRaw || !place) { errorEl.textContent = 'missing data.'; return; }
@@ -1550,6 +1609,13 @@ Do not output XML thinking tags. Only output the final text.
             startLoadingMorph();
 
             try {
+                // Prepare request body
+                const reqBody = { dob, tob, place, name: 'User' };
+                if (lat && lon) {
+                    reqBody.lat = parseFloat(lat);
+                    reqBody.lon = parseFloat(lon);
+                }
+
                 // 1. Calculate Chart Math
                 const res = await fetch(`${BACKEND_URL}/api/chart`, {
                     method: 'POST',
@@ -1557,7 +1623,7 @@ Do not output XML thinking tags. Only output the final text.
                         'Content-Type': 'application/json',
                         'Bypass-Tunnel-Reminder': 'true'
                     },
-                    body: JSON.stringify({ dob, tob, place, name: 'User' }),
+                    body: JSON.stringify(reqBody),
                     signal: AbortSignal.timeout(20000),
                 });
                 const data = await res.json();
@@ -1867,6 +1933,72 @@ Do not output XML thinking tags. Only output the final text.
 
         document.getElementById('floatingInput').addEventListener('input', function () {
             this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+        });
+
+        // ─── City Autocomplete Logic ─────────────────────────────────────────
+        const placeInput = document.getElementById('placeInput');
+        const cityDropdown = document.getElementById('cityDropdown');
+        const cityLat = document.getElementById('cityLat');
+        const cityLon = document.getElementById('cityLon');
+        let cityDebounceTimer;
+
+        placeInput.addEventListener('input', function () {
+            clearTimeout(cityDebounceTimer);
+            const query = this.value.trim();
+
+            // Re-typing invalidates the specific coordinates until selected again
+            cityLat.value = '';
+            cityLon.value = '';
+
+            if (query.length < 3) {
+                cityDropdown.innerHTML = '';
+                cityDropdown.classList.add('hidden');
+                return;
+            }
+
+            cityDebounceTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&featuretype=city,town,village&limit=5`, {
+                        headers: { 'User-Agent': 'Starrygate/1.0' }
+                    });
+                    const data = await res.json();
+
+                    if (data.length === 0) {
+                        cityDropdown.innerHTML = '<div class="city-option" style="cursor:default;">no results.</div>';
+                        cityDropdown.classList.remove('hidden');
+                        return;
+                    }
+
+                    cityDropdown.innerHTML = '';
+                    data.forEach(item => {
+                        // Simplify display name (e.g., "Paris, Ile-de-France, France" -> "Paris, France")
+                        const parts = item.display_name.split(', ');
+                        const shortName = parts.length > 2 ? `${parts[0]}, ${parts[parts.length - 1]}` : item.display_name;
+
+                        const div = document.createElement('div');
+                        div.className = 'city-option';
+                        div.textContent = shortName;
+                        div.onclick = () => {
+                            placeInput.value = shortName;
+                            cityLat.value = item.lat;
+                            cityLon.value = item.lon;
+                            cityDropdown.classList.add('hidden');
+                        };
+                        cityDropdown.appendChild(div);
+                    });
+                    cityDropdown.classList.remove('hidden');
+
+                } catch (err) {
+                    console.error('Geocoding error:', err);
+                }
+            }, 400); // 400ms debounce
+        });
+
+        // Hide dropdown on clicking outside
+        document.addEventListener('click', (e) => {
+            if (!placeInput.contains(e.target) && !cityDropdown.contains(e.target)) {
+                cityDropdown.classList.add('hidden');
+            }
         });
     </script>
 </body>

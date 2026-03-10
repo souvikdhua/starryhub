@@ -73,6 +73,8 @@ class ChartRequest(BaseModel):
     tob: str          # "HH:MM:SS"
     place: str        # "City, Country"
     name: str = ""    # optional name
+    lat: Optional[float] = None
+    lon: Optional[float] = None
 
 # ─── Geocoding (Nominatim) ───────────────────────────────────────────────────
 
@@ -109,10 +111,14 @@ async def calculate_chart(request: ChartRequest):
     tob = data["tob"]
     place = data["place"]
     name = data.get("name", "").strip() or "User"
+    lat = data.get("lat")
+    lon = data.get("lon")
     
-    # Geocode place
-    lat, lon = geocode_place(place)
-    if lat is None:
+    # Geocode place only if exact coordinates weren't provided by the frontend
+    if lat is None or lon is None:
+        lat, lon = geocode_place(place)
+        
+    if lat is None or lon is None:
         return JSONResponse(
             {"error": {"message": "couldn't find that place. try again."}},
             status_code=400
