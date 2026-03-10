@@ -624,9 +624,12 @@ NEVER output technical terms. Only raw human truth, lowercase, CoStar aesthetic.
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_frontend():
-    html_path = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "vedic-astro-gem.html"
-    )
+    # Try same-dir first (HF Spaces / Docker), then parent dir (local dev)
+    html_path = os.path.join(os.path.dirname(__file__), "vedic-astro-gem.html")
+    if not os.path.exists(html_path):
+        html_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "vedic-astro-gem.html"
+        )
     with open(html_path, "r", encoding="utf-8") as f:
         return f.read()
 
