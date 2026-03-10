@@ -54,12 +54,13 @@ GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 
 CLOUD_MODELS = [
     "gemini-2.5-flash",
+    "gemini-2.5-pro",
     "gemini-2.0-flash",
 ]
 
-# Groq config (free 30 RPM — used for technical analysis)
+# Groq config — using a safe bet
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "llama-3.1-8b-instant"
 
 # ─── Request Schemas ─────────────────────────────────────────────────────────
 
@@ -303,14 +304,20 @@ OUTPUT FORMAT — respond ONLY with this JSON structure, nothing else:
 
 # ─── Gemini Cloud Call (Agent 2: CoStar Poet) ───────────────────────────────
 
-async def call_gemini(messages: list, api_key: str, max_retries: int = 2) -> str:
-    """Call Gemini API with retry and model fallback."""
+async def call_gemini(messages: list, api_key: str = None, max_retries: int = 1) -> str:
+    """Call Gemini API with retry, model fallback, and key rotation."""
     headers = {"Content-Type": "application/json"}
+    
+    # Use all available keys for rotation
+    keys_to_try = list(GEMINI_API_KEYS)
+    if api_key and api_key not in keys_to_try:
+        keys_to_try.insert(0, api_key)
+    if not keys_to_try:
+        keys_to_try = [get_next_api_key()]
 
     # Translate OpenAI format to Gemini format
     system_instruction = None
     gemini_contents = []
-    
     for msg in messages:
         role = msg.get("role")
         content = msg.get("content", "")
@@ -323,50 +330,59 @@ async def call_gemini(messages: list, api_key: str, max_retries: int = 2) -> str
 
     last_error = None
     for model in CLOUD_MODELS:
-        for attempt in range(max_retries + 1):
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-            
-            payload = {
-                "contents": gemini_contents,
-                "generationConfig": {
-                    "temperature": 0.2,
-                    "maxOutputTokens": 8192,
-                    "topP": 0.85,
-                }
-            }
-            if system_instruction:
-                payload["systemInstruction"] = system_instruction
+        for current_key in keys_to_try:
+                # All verified models for this key are on v1beta
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={current_key}"
                 
-            try:
-                loop = asyncio.get_event_loop()
-                res = await loop.run_in_executor(
-                    None,
-                    lambda: requests.post(url, headers=headers, json=payload, timeout=45)
-                )
-                if res.status_code == 429:
-                    wait = (2 ** attempt) * 2
-                    print(f"  ⚠ Rate limited on {model}. Retrying in {wait}s...")
-                    await asyncio.sleep(wait)
-                    continue
-                if res.status_code in (502, 503):
-                    break  # Try next model
-                if res.status_code >= 400:
-                    error_body = res.text[:500]
+                payload = {
+                    "contents": gemini_contents,
+                    "generationConfig": {
+                        "temperature": 0.2,
+                        "maxOutputTokens": 8192,
+                        "topP": 0.85,
+                    }
+                }
+                if system_instruction:
+                    payload["systemInstruction"] = system_instruction
+                    
+                try:
+                    loop = asyncio.get_event_loop()
+                    res = await loop.run_in_executor(
+                        None,
+                        lambda: requests.post(url, headers=headers, json=payload, timeout=45)
+                    )
+                    
+                    if res.status_code == 200:
+                        data = res.json()
+                        content = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                        if content:
+                            print(f"  ✅ Response from {model}")
+                            return content
+                        continue
+                    
+                    if res.status_code == 429:
+                        print(f"  ⚠ 429 Rate Limit on {model} with current key. Retrying next key/model...")
+                        break  # Try next key
+                    
+                    if res.status_code == 404:
+                        print(f"  ⚠ 404 Model {model} not found. Trying next model...")
+                        break  # Try next model (skip other keys for this model)
+
+                    if res.status_code in (502, 503):
+                        print(f"  ⚠ {model} service unavailable. Trying next key...")
+                        continue # Try next attempt or next key
+                        
+                    error_body = res.text[:200]
                     print(f"  ⚠ {model} returned {res.status_code}: {error_body}")
                     last_error = f"{res.status_code}: {error_body}"
-                    break  # Try next model
-                
-                data = res.json()
-                content = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-                if content:
-                    print(f"  ✅ Response from {model}")
-                    return content
-                continue
-            except Exception as e:
-                last_error = str(e)
-                continue
+                    break  # Try next key
+                    
+                except Exception as e:
+                    print(f"  ⚠ Gemini call error: {e}")
+                    last_error = str(e)
+                    break # Try next key
 
-    raise Exception(f"All cloud models failed. Last error: {last_error}")
+    raise Exception(f"All keys/models failed. Last error: {last_error}")
 
 
 # ─── Main Chat Endpoint ──────────────────────────────────────────────────────
@@ -467,102 +483,48 @@ async def chat(request: ChatRequest):
         if groq_analysis:
             # Multi-agent mode: Gemini receives Groq's structured analysis
             print(f"✨ Stage 2: Gemini Poet (CoStar voice)...")
-            poet_system = """You are the voice of Starrygate — a haunting, poetic, lowercase oracle in the style of CoStar.
+            poet_system = """You are the voice of Starrygate — a haunting, poetic, lowercase oracle.
+Your soul is a mix of Cioran and Co-Star.
 
-You will receive a STRUCTURED TECHNICAL ANALYSIS from a master astrologer. Your job is to TRANSFORM it into raw human truth.
+You will receive a STRUCTURED TECHNICAL ANALYSIS. Your job is to POETIFY it while keeping the EXACT JSON structure.
 
 RULES:
-1. ABSOLUTELY NO EMOJIS, NO BOLDING (**), NO MARKDOWN, NO HEADERS (#).
-2. NEVER USE COLONS (:) TO START A LIST.
-3. Everything lowercase. Haunting, minimal, punchy sentences.
-4. NEVER name planets, houses, signs, dashas, nakshatras. Use cryptic metaphors.
-5. The analysis is your source of truth. Do NOT contradict it. Transform its technical language into FEELING.
-6. ALWAYS place a blank line before starting a new category header.
+1. PURE JSON OUTPUT. No markdown blocks, no text before or after.
+2. LOWERCASE EVERYTHING.
+3. Use haunting, minimal, punchy metaphors. 
+4. DO NOT use technical terms (planets, houses, degrees). Use metaphors like "the red force", "the area of silence", "the pattern of expansion".
+5. AVOID CLICHES. No "embrace the journey", no "stars are aligned". Be blunt and existential.
+6. The "today_at_a_glance" paragraphs should be short, sharp shocks.
 
-OUTPUT EXACTLY these categories in order. Each bullet must be its own paragraph line (not prefixed with -):
-
-today at a glance
-[3 paragraphs based on the technical analysis "today_at_a_glance"]
-do
-[one exact grounded action from do_dont.today.do]
-don't
-[one specific mental loop from do_dont.today.dont]
-
-year at a glance
-[3 paragraphs based on "year_at_a_glance"]
-do
-[from do_dont.year.do]
-don't
-[from do_dont.year.dont]
-
-identity
-[3 paragraphs based on "identity"]
-do
-[from do_dont.identity.do]
-don't
-[from do_dont.identity.dont]
-
-the mask
-[3 paragraphs based on "the_mask"]
-do
-[from do_dont.the_mask.do]
-don't
-[from do_dont.the_mask.dont]
-
-the knot
-[3 paragraphs based on "the_knot"]
-do
-[from do_dont.the_knot.do]
-don't
-[from do_dont.the_knot.dont]
-
-emotions
-[3 paragraphs based on "emotions"]
-do
-[from do_dont.emotions.do]
-don't
-[from do_dont.emotions.dont]
-
-drive
-[3 paragraphs based on "drive"]
-do
-[from do_dont.drive.do]
-don't
-[from do_dont.drive.dont]
-
-communication
-[3 paragraphs based on "communication"]
-do
-[from do_dont.communication.do]
-don't
-[from do_dont.communication.dont]
-
-love
-[3 paragraphs based on "love"]
-do
-[from do_dont.love.do]
-don't
-[from do_dont.love.dont]
-
-pressure
-[3 paragraphs based on "pressure"]
-do
-[from do_dont.pressure.do]
-don't
-[from do_dont.pressure.dont]
-
-soul song
-[from soul_song]
-
-soul movie
-[from soul_movie]
-
-quote
-[from quote]
-
-fun fact
-[from fun_fact]
-"""
+OUTPUT STRUCTURE (Match this exactly, but fill with your poetry):
+{
+  "today_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
+  "year_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
+  "identity": { "p1": "...", "p2": "...", "p3": "..." },
+  "the_mask": { "p1": "...", "p2": "...", "p3": "..." },
+  "the_knot": { "p1": "...", "p2": "...", "p3": "..." },
+  "emotions": { "p1": "...", "p2": "...", "p3": "..." },
+  "drive": { "p1": "...", "p2": "...", "p3": "..." },
+  "communication": { "p1": "...", "p2": "...", "p3": "..." },
+  "love": { "p1": "...", "p2": "...", "p3": "..." },
+  "pressure": { "p1": "...", "p2": "...", "p3": "..." },
+  "do_dont": {
+     "today": {"do": "...", "dont": "..."},
+     "year": {"do": "...", "dont": "..."},
+     "identity": {"do": "...", "dont": "..."},
+     "the_mask": {"do": "...", "dont": "..."},
+     "the_knot": {"do": "...", "dont": "..."},
+     "emotions": {"do": "...", "dont": "..."},
+     "drive": {"do": "...", "dont": "..."},
+     "communication": {"do": "...", "dont": "..."},
+     "love": {"do": "...", "dont": "..."},
+     "pressure": {"do": "...", "dont": "..."}
+  },
+  "soul_song": "song by artist",
+  "soul_movie": "movie name",
+  "quote": "piercing quote",
+  "fun_fact": "hyper-specific habit"
+}"""
             poet_messages = [
                 {"role": "system", "content": poet_system},
                 {"role": "user", "content": f"Transform this technical astrology analysis into a CoStar-style reading:\n\n{groq_analysis}"}
@@ -571,13 +533,48 @@ fun fact
         else:
             # Fallback: Gemini-only mode (original behavior)
             print(f"\n🔮 Starrygate (Gemini solo mode)...")
+            
+            # Ensure we have a system message to inject context into
+            has_system = any(msg.get("role") == "system" for msg in messages)
+            if not has_system:
+                messages.insert(0, {"role": "system", "content": "You are a master Vedic astrologer."})
+            
             for msg in messages:
                 if msg.get("role") == "system":
                     extra = "\n\n<raw_astrological_data_for_internal_analysis_only>\n"
                     extra += """CRITICAL INSTRUCTION: You are a master Vedic astrologer. MATH IS LAW — NO HALLUCINATIONS.
 Every claim must be traceable to the data. Cross-reference dignity + dasha + aspects + yogas.
-Find STRONGEST and WEAKEST planet — their gap IS the personality.
 NEVER output technical terms. Only raw human truth, lowercase, CoStar aesthetic.
+
+OUTPUT EXACTLY THIS JSON STRUCTURE:
+{
+  "today_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
+  "year_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
+  "identity": { "p1": "...", "p2": "...", "p3": "..." },
+  "the_mask": { "p1": "...", "p2": "...", "p3": "..." },
+  "the_knot": { "p1": "...", "p2": "...", "p3": "..." },
+  "emotions": { "p1": "...", "p2": "...", "p3": "..." },
+  "drive": { "p1": "...", "p2": "...", "p3": "..." },
+  "communication": { "p1": "...", "p2": "...", "p3": "..." },
+  "love": { "p1": "...", "p2": "...", "p3": "..." },
+  "pressure": { "p1": "...", "p2": "...", "p3": "..." },
+  "do_dont": {
+     "today": {"do": "...", "dont": "..."},
+     "year": {"do": "...", "dont": "..."},
+     "identity": {"do": "...", "dont": "..."},
+     "the_mask": {"do": "...", "dont": "..."},
+     "the_knot": {"do": "...", "dont": "..."},
+     "emotions": {"do": "...", "dont": "..."},
+     "drive": {"do": "...", "dont": "..."},
+     "communication": {"do": "...", "dont": "..."},
+     "love": {"do": "...", "dont": "..."},
+     "pressure": {"do": "...", "dont": "..."}
+  },
+  "soul_song": "song by artist",
+  "soul_movie": "movie name",
+  "quote": "piercing quote",
+  "fun_fact": "hyper-specific habit"
+}
 """
                     if chart_context:
                         extra += f"\n{chart_context}"
