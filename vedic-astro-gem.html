@@ -1754,221 +1754,111 @@ Do not output XML thinking tags. Only output the final text.
         }
 
         function renderReading(rawText) {
-            // Clean AI artifacts
-            let cleaned = rawText
-                .replace(/<think>[\s\S]*?<\/think>/gi, '')
-                .replace(/<thought>[\s\S]*?<\/thought>/gi, '')
-                .replace(/\b(?:1st|2nd|3rd|4th|5th|6th|7th|8th|9th|10th|11th|12th)\s+house\b/gi, 'area of life')
-                .replace(/\b(?:sun|moon|mercury|venus|mars|jupiter|saturn|rahu|ketu|uranus|neptune|pluto)\b/gi, 'force')
-                .replace(/\b(?:aries|taurus|gemini|cancer|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)\b/gi, 'energy')
-                .replace(/\b(?:ascendant|descendant|midheaven|ic|dasha|mahadasha|antardasha|pratyantar|transit|nakshatra|retrograde|degree|degrees|chart|natal|vimshottari)\b/gi, 'pattern')
-                .replace(/\b(?:navamsha|vargottama|atmakaraka|sade\s*sati|graha\s*yuddha|arudha\s*lagna|gandanta|combust|combustion|astangata|shadbala|ayanamsha|lahiri|sidereal)\b/gi, '')
-                .replace(/\b(?:exalted|debilitated|moolatrikona|kendra|trikona|dusthana|bhava|yoga|raja\s*yoga|gajakesari|budhaditya|kemadruma|neechabhanga|vipareeta|pancha\s*mahapurusha)\b/gi, '')
-                .replace(/\b(?:ruchaka|bhadra|hamsa|malavya|sasa)\s*yoga\b/gi, '')
-                .replace(/[0-9]{1,2}°[0-9]{1,2}'/g, '')
-                .replace(/\*\*/g, '')
-                .replace(/\s{2,}/g, ' ')
-                .trim();
-
-            // ─── Extract soul song, movie, quote for void cards ───
-            // Pre-process content to catch headers merged onto the same line as previous text
-            let content = cleaned;
-            const knownHeaders = [
-                'today at a glance', 'year at a glance', 'identity',
-                'the mirror', 'the mask', 'the knot', 'emotions', 'drive',
-                'communication', 'love', 'pressure', 'strength', 'weakness',
-                'soul song', 'soul movie', 'quote', 'fun fact', 'your film', 'for you'
-            ];
-
-            // Aggressively split known headers onto their own lines to prevent "YOUR SONG between the bars soul movie YOUR FILM" clump errors
-            knownHeaders.forEach(h => {
-                // Ignore case, split even if it's not preceded by punctuation
-                const regex = new RegExp(`(${h}[:\\-]?)`, 'gi');
-                content = content.replace(regex, '\n$1\n');
-            });
-
-            const lines = content.split('\n');
-            let soulSong = '';
-            let soulMovie = '';
-            let soulQuote = '';
-            const skipSections = new Set();
-
-            // Helper: extract content bullet from section start index
-            function extractBullet(startIdx) {
-                // First check if the content is right after the colon on the same line
-                const line = lines[startIdx];
-                if (line.includes(':')) {
-                    const parts = line.split(':');
-                    if (parts.length > 1 && parts[1].trim().length > 0) {
-                        return parts[1].trim().replace(/^[-–—•]/, '').trim();
-                    }
-                }
-
-                // Otherwise look at the next few lines
-                for (let j = startIdx + 1; j < Math.min(startIdx + 8, lines.length); j++) {
-                    const next = lines[j].trim();
-                    if (!next) continue;
-                    // If the next line is another known header, we stop. We missed the bullet.
-                    let isNextHeader = false;
-                    for (const h of knownHeaders) {
-                        if (next.toLowerCase().startsWith(h)) isNextHeader = true;
-                    }
-                    if (isNextHeader) return '—';
-
-                    skipSections.add(j);
-                    // Return the first non-empty text line
-                    return next.replace(/^[-–—•]/, '').replace(/\*/g, '').trim();
-                }
-                return '—';
+            let data;
+            try {
+                // The AI might wrap the JSON in markdown blocks
+                let cleanJsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                data = JSON.parse(cleanJsonStr);
+            } catch (e) {
+                console.error("Failed to parse JSON reading", e);
+                document.getElementById('readingContent').innerHTML = "<p>The oracle's vision is clouded. The stars resist translation right now. Try again.</p>";
+                return;
             }
 
-            // Find and extract the special sections (resilient matching)
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim().toLowerCase().replace(/[:\-]/g, '').trim();
-                // Match the void card titles and explicitly hide them entirely.
-                if (line.startsWith('soul song') || line === 'soul song') {
-                    skipSections.add(i);
-                    soulSong = extractBullet(i);
-                } else if (line.startsWith('soul movie') || line === 'soul movie' || line === 'your film') {
-                    skipSections.add(i);
-                    soulMovie = extractBullet(i);
-                } else if (line === 'quote' || line.startsWith('quote for') || line === 'a quote for you' || line === 'for you') {
-                    skipSections.add(i);
-                    soulQuote = extractBullet(i);
-                } else if (line.startsWith('fun fact') || line === 'fun fact') {
-                    // Also skip fun fact from main reading — it's a bonus detail
-                    skipSections.add(i);
-                    for (let j = i + 1; j < lines.length; j++) {
-                        const next = lines[j].trim();
-                        if (!next) continue;
-                        if (next.startsWith('-') || next.startsWith('–') || next.startsWith('—') || next.startsWith('•')) {
-                            skipSections.add(j);
-                        }
-                        break;
-                    }
-                }
-            }
+            // Clean function for the text (removes jargon, keeps it clean)
+            const cleanText = (str) => {
+                if (!str) return '';
+                return str
+                    .replace(/\b(?:1st|2nd|3rd|4th|5th|6th|7th|8th|9th|10th|11th|12th)\s+house\b/gi, 'area of life')
+                    .replace(/\b(?:sun|moon|mercury|venus|mars|jupiter|saturn|rahu|ketu|uranus|neptune|pluto)\b/gi, 'force')
+                    .replace(/\b(?:aries|taurus|gemini|cancer|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)\b/gi, 'energy')
+                    .replace(/\b(?:ascendant|descendant|midheaven|ic|dasha|mahadasha|antardasha|pratyantar|transit|nakshatra|retrograde|degree|degrees|chart|natal|vimshottari)\b/gi, 'pattern')
+                    .replace(/\b(?:navamsha|vargottama|atmakaraka|sade\s*sati|graha\s*yuddha|arudha\s*lagna|gandanta|combust|combustion|astangata|shadbala|ayanamsha|lahiri|sidereal)\b/gi, '')
+                    .replace(/\b(?:exalted|debilitated|moolatrikona|kendra|trikona|dusthana|bhava|yoga|raja\s*yoga|gajakesari|budhaditya|kemadruma|neechabhanga|vipareeta|pancha\s*mahapurusha)\b/gi, '')
+                    .replace(/\b(?:ruchaka|bhadra|hamsa|malavya|sasa)\s*yoga\b/gi, '')
+                    .replace(/[0-9]{1,2}°[0-9]{1,2}'/g, '')
+                    .replace(/\*\*/g, '')
+                    .replace(/\s{2,}/g, ' ')
+                    .trim()
+                    .toLowerCase(); // Enforce the Co-Star lowercase rule
+            };
 
-            // Populate void cards
-            if (soulSong || soulMovie || soulQuote) {
+            // ─── Render Void Cards ───
+            if (data.soul_song || data.soul_movie || data.quote) {
                 document.getElementById('voidCards').classList.remove('hidden');
-                if (soulSong) document.getElementById('voidSongContent').textContent = soulSong;
-                if (soulMovie) document.getElementById('voidMovieContent').textContent = soulMovie;
-                if (soulQuote) document.getElementById('voidQuoteContent').textContent = soulQuote;
+                if (data.soul_song) document.getElementById('voidSongContent').textContent = cleanText(data.soul_song);
+                if (data.soul_movie) document.getElementById('voidMovieContent').textContent = cleanText(data.soul_movie);
+                if (data.quote) document.getElementById('voidQuoteContent').textContent = cleanText(data.quote);
             }
 
-            // ─── Build main reading HTML (excluding extracted sections) ───
-            // PASS 1: Split content into sections by known headers
-            const sections = [];
-            let currentSection = null;
-
-            for (let i = 0; i < lines.length; i++) {
-                if (skipSections.has(i)) continue;
-                let line = lines[i].trim();
-                if (!line) continue;
-
-                let lowerLine = line.toLowerCase();
-                const cleanContext = lowerLine.replace(/[\*:_~\[\]#\-]/g, '').trim();
-
-                // Check if this line is a known header
-                let isHeader = false;
-                for (const h of knownHeaders) {
-                    if (cleanContext === h || cleanContext.startsWith(h + ' ') || cleanContext.startsWith(h + ':')) {
-                        isHeader = true; break;
-                    }
-                }
-
-                if (isHeader) {
-                    currentSection = {
-                        title: line.replace(/[\*:_~\[\]#]/g, '').trim(),
-                        items: []
-                    };
-                    sections.push(currentSection);
-                } else if (currentSection) {
-                    currentSection.items.push(line);
-                } else {
-                    // Content before any header — create an implicit section
-                    currentSection = { title: '', items: [line] };
-                    sections.push(currentSection);
-                }
-            }
-
-            // PASS 2: Render each section into HTML
+            // ─── Render Main Reading ───
             let html = '<div class="reading-visual-divider">· · ·</div>';
 
-            for (const section of sections) {
-                html += `<div class="reading-section">`;
-                if (section.title) {
-                    html += `<strong>${section.title}</strong>`;
-                }
+            const sections = [
+                { id: "today_at_a_glance", title: "today at a glance" },
+                { id: "year_at_a_glance", title: "year at a glance" },
+                { id: "identity", title: "identity" },
+                { id: "the_mask", title: "the mask" },
+                { id: "the_knot", title: "the knot" },
+                { id: "emotions", title: "emotions" },
+                { id: "drive", title: "drive" },
+                { id: "communication", title: "communication" },
+                { id: "love", title: "love" },
+                { id: "pressure", title: "pressure" }
+            ];
 
-                let doText = null;
-                let i = 0;
-                while (i < section.items.length) {
-                    const item = section.items[i];
-                    const lower = item.toLowerCase();
+            sections.forEach(sec => {
+                const sectionData = data[sec.id];
+                if (sectionData && Object.keys(sectionData).length > 0) {
+                    html += `<div class="reading-section">`;
+                    html += `<strong>${sec.title}</strong>`;
 
-                    // DO line
-                    if (lower.startsWith('do:') || lower === 'do') {
-                        if (lower.includes(':')) {
-                            doText = item.substring(item.indexOf(':') + 1).trim();
-                        } else if (i + 1 < section.items.length) {
-                            doText = section.items[i + 1];
-                            i++;
+                    // Render bullet points (the values inside the section object)
+                    html += `<ul>`;
+                    for (const [key, val] of Object.entries(sectionData)) {
+                        if (typeof val === 'string' && val.trim().length > 0) {
+                            html += `<li>${cleanText(val)}</li>`;
                         }
-                        i++; continue;
                     }
+                    html += `</ul>`;
 
-                    // DON'T line
-                    if (lower.startsWith("don't:") || lower.startsWith("don\u2019t:") || lower === "don't" || lower === "don\u2019t") {
-                        let dontText = '';
-                        if (lower.includes(':')) {
-                            dontText = item.substring(item.indexOf(':') + 1).trim();
-                        } else if (i + 1 < section.items.length) {
-                            dontText = section.items[i + 1];
-                            i++;
+                    // Handle Do/Don't for this section
+                    if (data.do_dont && data.do_dont[sec.id.replace("_at_a_glance", "")]) {
+                        const dd = data.do_dont[sec.id.replace("_at_a_glance", "")];
+                        if (dd.do || dd.dont) {
+                            html += `
+                                <div class="dos-donts">
+                                    <div class="do-block">
+                                        <span class="do-label">do</span>
+                                        <span class="do-text">${cleanText(dd.do || 'breathe')}</span>
+                                    </div>
+                                    <div class="dont-block">
+                                        <span class="dont-label">don't</span>
+                                        <span class="do-text">${cleanText(dd.dont || 'overthink')}</span>
+                                    </div>
+                                </div>`;
                         }
-                        html += `
-                            <div class="dos-donts">
-                                <div class="do-block">
-                                    <span class="do-label">do</span>
-                                    <span class="do-text">${(doText || '').toLowerCase()}</span>
-                                </div>
-                                <div class="dont-block">
-                                    <span class="dont-label">don't</span>
-                                    <span class="do-text">${(dontText || '').toLowerCase()}</span>
-                                </div>
-                            </div>`;
-                        doText = null;
-                        i++; continue;
+                    } else if (sec.id === 'today_at_a_glance' || sec.id === 'year_at_a_glance') {
+                        // Fallback for today/year if the key structure slightly differs
+                        const fallbackDd = data.do_dont && data.do_dont[sec.id.split('_')[0]];
+                        if (fallbackDd && (fallbackDd.do || fallbackDd.dont)) {
+                            html += `
+                                <div class="dos-donts">
+                                    <div class="do-block">
+                                        <span class="do-label">do</span>
+                                        <span class="do-text">${cleanText(fallbackDd.do || 'breathe')}</span>
+                                    </div>
+                                    <div class="dont-block">
+                                        <span class="dont-label">don't</span>
+                                        <span class="do-text">${cleanText(fallbackDd.dont || 'overthink')}</span>
+                                    </div>
+                                </div>`;
+                        }
                     }
 
-                    // Bullet line
-                    if (item.startsWith('-') || item.startsWith('–') || item.startsWith('—') || item.startsWith('•')) {
-                        html += `<ul><li>${item.substring(1).trim()}</li></ul>`;
-                    } else {
-                        // Paragraph text
-                        html += `<p class="reading-paragraph" style="margin-bottom:12px">${item}</p>`;
-                    }
-                    i++;
+                    html += `</div>`;
                 }
-
-                // Flush any trailing DO without a DON'T
-                if (doText) {
-                    html += `
-                        <div class="dos-donts">
-                            <div class="do-block">
-                                <span class="do-label">do</span>
-                                <span class="do-text">${doText.toLowerCase()}</span>
-                            </div>
-                            <div class="dont-block">
-                                <span class="dont-label">don't</span>
-                                <span class="do-text"></span>
-                            </div>
-                        </div>`;
-                }
-                html += `</div>`;
-            }
+            });
 
             document.getElementById('readingContent').innerHTML = html;
         }
