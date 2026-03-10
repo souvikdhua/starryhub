@@ -1172,15 +1172,15 @@
             <div class="birth-form" id="birthForm">
                 <div class="form-group">
                     <label>born</label>
-                    <input type="date" id="dobInput" value="2000-12-25">
+                    <input type="date" id="dobInput" value="">
                 </div>
                 <div class="form-group">
                     <label>at</label>
-                    <input type="time" id="tobInput" step="1" value="13:44:39">
+                    <input type="time" id="tobInput" step="1" value="">
                 </div>
                 <div class="form-group">
                     <label>where</label>
-                    <input type="text" id="placeInput" placeholder="city, country" value="Bankura, India">
+                    <input type="text" id="placeInput" placeholder="city, country" value="">
                 </div>
                 <button class="chart-btn" id="chartBtn" onclick="generateFullReading()">show me</button>
                 <div class="form-error" id="formError"></div>
@@ -1522,6 +1522,7 @@ fun fact
 
 [CHAT FORMAT]
 For follow-up questions: answer ONLY that specific question in exhaustive depth. Analyze their exact chart math internally. Sound haunting, beautiful, and deeply personal. Use the same lowercase cryptic style. If they ask about career, cross-reference 10th house lord dignity + current dasha + Saturn strength. If about love, cross-reference Venus + 7th house + Mars aspects. Never give generic advice. Every word must feel specifically calculated for their chart.
+ABSOLUTELY NO SUBHEADERS OR CATEGORIES IN CHAT ANSWERS. Just write pure, flowing paragraphs answering their specific question.
 Do not output XML thinking tags. Only output the final text.
 `;
 
@@ -1659,13 +1660,14 @@ Do not output XML thinking tags. Only output the final text.
             // Find and extract the special sections (resilient matching)
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim().toLowerCase().replace(/[:\-]/g, '').trim();
+                // Match the void card titles and explicitly hide them entirely.
                 if (line.startsWith('soul song') || line === 'soul song') {
                     skipSections.add(i);
                     soulSong = extractBullet(i);
-                } else if (line.startsWith('soul movie') || line === 'soul movie') {
+                } else if (line.startsWith('soul movie') || line === 'soul movie' || line === 'your film') {
                     skipSections.add(i);
                     soulMovie = extractBullet(i);
-                } else if (line === 'quote' || line.startsWith('quote for') || line === 'a quote for you') {
+                } else if (line === 'quote' || line.startsWith('quote for') || line === 'a quote for you' || line === 'for you') {
                     skipSections.add(i);
                     soulQuote = extractBullet(i);
                 } else if (line.startsWith('fun fact') || line === 'fun fact') {
