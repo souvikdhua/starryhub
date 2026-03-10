@@ -1226,13 +1226,14 @@
             <div class="birth-form" id="birthForm">
                 <div class="form-group">
                     <label>born</label>
-                    <input type="date" id="dobInput" value="">
+                    <input type="text" id="dobInput" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off"
+                        value="">
                 </div>
                 <div class="form-group">
                     <label>at</label>
                     <input type="time" id="tobInput" step="1" value="">
                 </div>
-                <div class="form-group" style="position: relative;">
+                <div class="form-group" style="position: relative; z-index: 50;">
                     <label>where</label>
                     <input type="text" id="placeInput" placeholder="city, country" value="" autocomplete="off">
                     <div id="cityDropdown" class="city-dropdown hidden"></div>
@@ -1594,14 +1595,24 @@ Do not output XML thinking tags. Only output the final text.
         function resetApiKey() { }
 
         async function generateFullReading() {
-            const dob = document.getElementById('dobInput').value;
+            let dobRaw = document.getElementById('dobInput').value.trim();
             const tobRaw = document.getElementById('tobInput').value;
             const place = document.getElementById('placeInput').value.trim();
             const lat = document.getElementById('cityLat').value;
             const lon = document.getElementById('cityLon').value;
             const errorEl = document.getElementById('formError');
 
-            if (!dob || !tobRaw || !place) { errorEl.textContent = 'missing data.'; return; }
+            if (!dobRaw || !tobRaw || !place) { errorEl.textContent = 'missing data.'; return; }
+
+            // Parse DD/MM/YYYY to YYYY-MM-DD for backend
+            let dob = dobRaw;
+            if (dobRaw.includes('/')) {
+                const parts = dobRaw.split('/');
+                if (parts.length === 3) {
+                    dob = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                }
+            }
+
             errorEl.textContent = '';
             const tob = tobRaw.length === 5 ? tobRaw + ':00' : tobRaw;
 
@@ -1935,6 +1946,18 @@ Do not output XML thinking tags. Only output the final text.
             this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 80) + 'px';
         });
 
+        // ─── DD/MM/YYYY Date Mask ───────────────────────────────────────────
+        const dobInput = document.getElementById('dobInput');
+        dobInput.addEventListener('input', function (e) {
+            let val = this.value.replace(/\D/g, '');
+            if (val.length >= 3 && val.length <= 4) {
+                val = val.substring(0, 2) + '/' + val.substring(2);
+            } else if (val.length >= 5) {
+                val = val.substring(0, 2) + '/' + val.substring(2, 4) + '/' + val.substring(4, 8);
+            }
+            this.value = val;
+        });
+
         // ─── City Autocomplete Logic ─────────────────────────────────────────
         const placeInput = document.getElementById('placeInput');
         const cityDropdown = document.getElementById('cityDropdown');
@@ -1958,9 +1981,7 @@ Do not output XML thinking tags. Only output the final text.
 
             cityDebounceTimer = setTimeout(async () => {
                 try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&featuretype=city,town,village&limit=5`, {
-                        headers: { 'User-Agent': 'Starrygate/1.0' }
-                    });
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&featuretype=city,town,village&limit=5&email=contact@starrygate.in`);
                     const data = await res.json();
 
                     if (data.length === 0) {
