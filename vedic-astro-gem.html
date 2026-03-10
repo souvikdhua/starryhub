@@ -446,6 +446,44 @@
             background: var(--text-muted);
         }
 
+        /* ─── Planetary Badges ─── */
+        .planetary-badges {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 0.8s;
+            flex-wrap: wrap;
+        }
+
+        .planetary-badges.hidden {
+            display: none;
+        }
+
+        .badge-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: var(--sans);
+        }
+
+        .badge-icon {
+            font-size: 1.2rem;
+            color: var(--text);
+        }
+
+        .badge-text {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
         .reading-content {
             font-size: 1.08rem;
             line-height: 2.1;
@@ -1251,6 +1289,16 @@
                 this is yours.
             </div>
 
+            <!-- Planetary Badges Generated Dynamically -->
+            <div id="planetaryBadges" class="planetary-badges hidden">
+                <div class="badge-item"><span class="badge-icon">↑</span><span class="badge-text" id="badgeAsc"></span>
+                </div>
+                <div class="badge-item"><span class="badge-icon">☉</span><span class="badge-text" id="badgeSun"></span>
+                </div>
+                <div class="badge-item"><span class="badge-icon">☽</span><span class="badge-text" id="badgeMoon"></span>
+                </div>
+            </div>
+
             <!-- Void Cards: Song / Movie / Quote -->
             <div class="void-cards hidden" id="voidCards">
                 <div class="void-card" id="voidSong">
@@ -1634,13 +1682,21 @@ Do not output XML thinking tags. Only output the final text.
                         'Content-Type': 'application/json',
                         'Bypass-Tunnel-Reminder': 'true'
                     },
-                    body: JSON.stringify(reqBody),
-                    signal: AbortSignal.timeout(20000),
+                    body: JSON.stringify(reqBody)
                 });
                 const data = await res.json();
                 if (data.error) throw new Error(data.error.message);
 
                 currentChartContext = data.chart_context || '';
+
+                // Populate Planetary Badges
+                if (data.ascendant) {
+                    const ascSign = data.ascendant.split(' ')[0]; // "Aries (20°45')" -> "Aries"
+                    document.getElementById('badgeAsc').textContent = ascSign;
+                    document.getElementById('badgeSun').textContent = data.sun_sign;
+                    document.getElementById('badgeMoon').textContent = data.moon_sign;
+                    document.getElementById('planetaryBadges').classList.remove('hidden');
+                }
 
                 // Cinematic transition
                 const welcomeEl = document.getElementById('welcomeSection');
@@ -1698,12 +1754,14 @@ Do not output XML thinking tags. Only output the final text.
                 'today at a glance', 'year at a glance', 'identity',
                 'the mirror', 'the mask', 'the knot', 'emotions', 'drive',
                 'communication', 'love', 'pressure', 'strength', 'weakness',
-                'soul song', 'soul movie', 'quote', 'fun fact'
+                'soul song', 'soul movie', 'quote', 'fun fact', 'your film', 'for you'
             ];
+
+            // Aggressively split known headers onto their own lines to prevent "YOUR SONG between the bars soul movie YOUR FILM" clump errors
             knownHeaders.forEach(h => {
-                // If a header appears immediately after a period/exclamation/question mark, split it
-                const regex = new RegExp(`(?<=[\\.\\?!]\\s+)(${h})`, 'gi');
-                content = content.replace(regex, '\n$1');
+                // Ignore case, split even if it's not preceded by punctuation
+                const regex = new RegExp(`(${h}[:\\-]?)`, 'gi');
+                content = content.replace(regex, '\n$1\n');
             });
 
             const lines = content.split('\n');
@@ -1724,11 +1782,18 @@ Do not output XML thinking tags. Only output the final text.
                 }
 
                 // Otherwise look at the next few lines
-                for (let j = startIdx + 1; j < Math.min(startIdx + 5, lines.length); j++) {
+                for (let j = startIdx + 1; j < Math.min(startIdx + 8, lines.length); j++) {
                     const next = lines[j].trim();
                     if (!next) continue;
+                    // If the next line is another known header, we stop. We missed the bullet.
+                    let isNextHeader = false;
+                    for (const h of knownHeaders) {
+                        if (next.toLowerCase().startsWith(h)) isNextHeader = true;
+                    }
+                    if (isNextHeader) return '—';
+
                     skipSections.add(j);
-                    // Return the first non-empty line we find, stripping bullet chars if present
+                    // Return the first non-empty text line
                     return next.replace(/^[-–—•]/, '').replace(/\*/g, '').trim();
                 }
                 return '—';
@@ -1933,8 +1998,7 @@ Do not output XML thinking tags. Only output the final text.
                 },
                 body: JSON.stringify({
                     messages, api_key: getApiKey(), chart_context: currentChartContext,
-                }),
-                signal: AbortSignal.timeout(60000),
+                })
             });
 
             const data = await res.json();
