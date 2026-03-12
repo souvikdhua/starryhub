@@ -634,7 +634,8 @@ OUTPUT EXACTLY THIS JSON STRUCTURE:
         if "rate" in error_msg.lower() or "429" in error_msg:
             user_msg = "too many questions. breathe. try again in a moment."
         else:
-            user_msg = "something went quiet. try again."
+            # Let the frontend see the actual error to debug the HF Space
+            user_msg = f"something went quiet. ({error_msg})"
 
         return JSONResponse({"error": {"message": user_msg}}, status_code=500)
 

@@ -100,9 +100,12 @@ def initialize_db():
     print(f"🌱 Embedding {len(_chunks)} Vedic corpus chunks with {EMBEDDING_MODEL}...")
     _embeddings = _embed_texts(_chunks, task_type="RETRIEVAL_DOCUMENT")
 
-    # Cache to disk
-    np.savez(CACHE_PATH, embeddings=_embeddings, hash=np.array(content_hash))
-    print(f"✅ Embedded and cached {len(_chunks)} chunks with Gemini.")
+    # Cache to disk (graceful fallback if read-only filesystem like Hugging Face or Vercel)
+    try:
+        np.savez(CACHE_PATH, embeddings=_embeddings, hash=np.array(content_hash))
+        print(f"✅ Embedded and cached {len(_chunks)} chunks with Gemini.")
+    except Exception as e:
+        print(f"⚠ Could not save cache to disk (read-only FS?): {e}. Using entirely in-memory.")
 
 
 # Initialize on import
