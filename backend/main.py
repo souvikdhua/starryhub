@@ -60,7 +60,7 @@ CLOUD_MODELS = [
 ]
 
 # Configure generation for stability
-DEFAULT_TEMP = 0.2
+DEFAULT_TEMP = 0.1
 DEFAULT_TOKENS = 16384  # Double the limit to prevent truncation errors
 DEFAULT_TOP_P = 0.85
 
@@ -197,78 +197,38 @@ CROSS-REFERENCE RULES:
 5. Bhava lord placements tell the PLOT, not just the theme.
 6. Atmakaraka = what the soul obsessively craves.
 
-OUTPUT FORMAT — respond ONLY with this JSON structure, nothing else:
+OUTPUT FORMAT — respond ONLY with this JSON structure. Keep all values under 15 words. Lowercase only. Blunt tone. No jargon. No formatting. NOTHING ELSE but the JSON.
 {
-  "today_at_a_glance": {
-    "tension": "specific tension/relief from current transits + dasha",
-    "vibe": "atmospheric feeling of the day",
-    "demands_attention": "what needs focus right now"
-  },
-  "year_at_a_glance": {
-    "overarching_lesson": "based on mahadasha-antardasha",
-    "tectonic_shift": "what internal shift is happening",
-    "dissolving": "what is ending, dying, or dissolving"
-  },
-  "identity": {
-    "core_synthesis": "ascendant + sun + moon dignities synthesized into one statement",
-    "core_contradiction": "strongest vs weakest planet tension",
-    "hidden_truth": "what they hide from everyone"
-  },
-  "the_mask": {
-    "outer_perception": "how others see them",
-    "inner_reality": "what's really happening inside",
-    "misread": "how people constantly misread them"
-  },
-  "the_knot": {
-    "recurring_wound": "deepest recurring pattern of pain",
-    "tripping_point": "what they keep stumbling over",
-    "impossible_problem": "the thing they must learn to carry"
-  },
-  "emotions": {
-    "landscape": "emotional terrain based on Moon dignity + 4th house",
-    "pain_processing": "how they process hurt",
-    "secret_trigger": "what triggers them that nobody would guess"
-  },
-  "drive": {
-    "force": "nature of their drive based on Mars + Sun",
-    "fight_style": "how they fight or avoid fighting",
-    "secret_motivation": "what secretly motivates them beneath the surface"
-  },
-  "communication": {
-    "intellect": "Mercury dignity and thinking style",
-    "think_vs_speak": "gap between how they think and how they speak",
-    "misinterpretation": "gap between what they mean and what people hear"
-  },
-  "love": {
-    "craving": "what their soul craves based on Venus + 7th house",
-    "pattern": "their recurring relationship pattern",
-    "need_vs_choice": "what they actually need vs what they keep choosing"
-  },
-  "pressure": {
-    "weight": "where Saturn puts the heaviest pressure",
-    "crushing_point": "where they feel the most weight",
-    "time_relationship": "their relationship with time, patience, authority"
-  },
+  "today_at_a_glance": {"tension": "...", "vibe": "...", "demands_attention": "..."},
+  "year_at_a_glance": {"overarching_lesson": "...", "tectonic_shift": "...", "dissolving": "..."},
+  "identity": {"core_synthesis": "...", "core_contradiction": "...", "hidden_truth": "..."},
+  "the_mask": {"outer_perception": "...", "inner_reality": "...", "misread": "..."},
+  "the_knot": {"recurring_wound": "...", "tripping_point": "...", "impossible_problem": "..."},
+  "emotions": {"landscape": "...", "pain_processing": "...", "secret_trigger": "..."},
+  "drive": {"force": "...", "fight_style": "...", "secret_motivation": "..."},
+  "communication": {"intellect": "...", "think_vs_speak": "...", "misinterpretation": "..."},
+  "love": {"craving": "...", "pattern": "...", "need_vs_choice": "..."},
+  "pressure": {"weight": "...", "crushing_point": "...", "time_relationship": "..."},
   "do_dont": {
-    "today": {"do": "specific action", "dont": "specific boundary"},
-    "year": {"do": "daily ritual", "dont": "delusion to release"},
-    "identity": {"do": "grounding action", "dont": "boundary to set"},
-    "the_mask": {"do": "action", "dont": "boundary"},
-    "the_knot": {"do": "action", "dont": "boundary"},
-    "emotions": {"do": "action", "dont": "boundary"},
-    "drive": {"do": "action", "dont": "boundary"},
-    "communication": {"do": "action", "dont": "boundary"},
-    "love": {"do": "action", "dont": "boundary"},
-    "pressure": {"do": "action", "dont": "boundary"}
+    "today": {"do": "...", "dont": "..."},
+    "year": {"do": "...", "dont": "..."},
+    "identity": {"do": "...", "dont": "..."},
+    "the_mask": {"do": "...", "dont": "..."},
+    "the_knot": {"do": "...", "dont": "..."},
+    "emotions": {"do": "...", "dont": "..."},
+    "drive": {"do": "...", "dont": "..."},
+    "communication": {"do": "...", "dont": "..."},
+    "love": {"do": "...", "dont": "..."},
+    "pressure": {"do": "...", "dont": "..."}
   },
-  "soul_song": "one obscure indie/alt song + artist that matches their exact emotional frequency",
-  "soul_movie": "one visually striking or emotionally devastating film that mirrors their period",
-  "quote": "one piercing quote from literature or philosophy",
-  "fun_fact": "one strange, hyper-specific habit deduced from an obscure placement",
+  "soul_song": "song by artist",
+  "soul_movie": "movie title",
+  "quote": "piercing quote",
+  "fun_fact": "specific habit",
   "strongest_planet": "name and score",
   "weakest_planet": "name and score",
-  "active_yogas": ["list of active yogas"],
-  "dasha_summary": "current mahadasha/antardasha and what it activates"
+  "active_yogas": ["name"],
+  "dasha_summary": "mahadasha/antardasha effect"
 }"""
 
     user_prompt = f"""Analyze this birth chart and output the structured JSON analysis.
@@ -359,7 +319,14 @@ async def call_gemini(messages: list, api_key: str = None, max_retries: int = 1)
                         "maxOutputTokens": DEFAULT_TOKENS,
                         "topP": DEFAULT_TOP_P,
                         "responseMimeType": "application/json",
-                    }
+                    },
+                    "safetySettings": [
+                        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_CIVIC_INTEGRITY", "threshold": "BLOCK_NONE"}
+                    ]
                 }
                 if system_instruction:
                     payload["systemInstruction"] = system_instruction
