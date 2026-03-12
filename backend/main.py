@@ -54,13 +54,23 @@ GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 
 CLOUD_MODELS = [
     "gemini-2.5-flash",
-    "gemini-2.5-pro",
     "gemini-2.0-flash",
+    "gemini-2.0-flash-exp",
+    "gemini-flash-latest",
 ]
 
-# Groq config — using a safe bet
+# Groq config — using a safe, high-limit model
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = "llama-3.1-8b-instant"
+GROQ_MODEL = "llama-3.1-8b-instant" 
+
+def extract_json(text: str) -> str:
+    """Extract JSON object from text if wrapped in markdown or chatter."""
+    # Find first { and last }
+    start = text.find('{')
+    end = text.rfind('}')
+    if start != -1 and end != -1:
+        return text[start:end+1]
+    return text
 
 # ─── Request Schemas ─────────────────────────────────────────────────────────
 
@@ -295,7 +305,10 @@ OUTPUT FORMAT — respond ONLY with this JSON structure, nothing else:
                 print(f"  ✅ Groq Analyst (Llama 3.3 70B): Technical analysis complete")
                 return content
         else:
-            print(f"  ⚠ Groq returned {res.status_code}: {res.text[:200]}")
+            if res.status_code == 403:
+                print(f"  ⚠ Groq is blocked (403). Falling back to Gemini.")
+            else:
+                print(f"  ⚠ Groq returned {res.status_code}: {res.text[:200]}")
             return None
     except Exception as e:
         print(f"  ⚠ Groq call failed: {e}")
@@ -340,6 +353,7 @@ async def call_gemini(messages: list, api_key: str = None, max_retries: int = 1)
                         "temperature": 0.2,
                         "maxOutputTokens": 8192,
                         "topP": 0.85,
+                        "responseMimeType": "application/json",
                     }
                 }
                 if system_instruction:
@@ -349,7 +363,7 @@ async def call_gemini(messages: list, api_key: str = None, max_retries: int = 1)
                     loop = asyncio.get_event_loop()
                     res = await loop.run_in_executor(
                         None,
-                        lambda: requests.post(url, headers=headers, json=payload, timeout=45)
+                        lambda: requests.post(url, headers=headers, json=payload, timeout=90)
                     )
                     
                     if res.status_code == 200:
@@ -530,6 +544,7 @@ OUTPUT STRUCTURE (Match this exactly, but fill with your poetry):
                 {"role": "user", "content": f"Transform this technical astrology analysis into a CoStar-style reading:\n\n{groq_analysis}"}
             ]
             final_answer = await call_gemini(poet_messages, api_key)
+            final_answer = extract_json(final_answer)
         else:
             # Fallback: Gemini-only mode (original behavior)
             print(f"\n🔮 Starrygate (Gemini solo mode)...")
@@ -583,6 +598,7 @@ OUTPUT EXACTLY THIS JSON STRUCTURE:
                     msg["content"] += extra
                     break
             final_answer = await call_gemini(messages, api_key)
+            final_answer = extract_json(final_answer)
 
         print("✅ Reading complete!\n")
 
