@@ -1,108 +1,159 @@
 import os
 import re
-import chromadb
-from chromadb.utils import embedding_functions
+import json
+import hashlib
+import numpy as np
+from dotenv import load_dotenv
+from google import genai
+from google.genai import types
 
-# Paths
+load_dotenv()
+
+# ─── Config ──────────────────────────────────────────────────────────────────
 BASE_DIR = os.path.dirname(__file__)
 DATA_PATH = os.path.join(BASE_DIR, 'data', 'vedic_knowledge_base.txt')
-DB_PATH = os.path.join(BASE_DIR, 'chroma_db')
+CACHE_PATH = os.path.join(BASE_DIR, 'gemini_embeddings_cache.npz')
+EMBEDDING_MODEL = "gemini-embedding-2-preview"
 
-# Initialize ChromaDB persistent client
-chroma_client = chromadb.PersistentClient(path=DB_PATH)
+# Initialize Gemini client
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY", ""))
 
-# Use a lightweight, fast, and highly effective embedding model
-sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+# ─── In-memory vector store ──────────────────────────────────────────────────
+_chunks: list[str] = []
+_embeddings: np.ndarray | None = None
 
-# Get or create the collection
-collection = chroma_client.get_or_create_collection(
-    name="vedic_corpus",
-    embedding_function=sentence_transformer_ef
-)
 
-def load_and_chunk_texts():
+def load_and_chunk_texts() -> list[str]:
     """Reads the raw corpus and splits it into logical chunks."""
     with open(DATA_PATH, 'r', encoding='utf-8') as f:
         content = f.read()
-    
-    # Split by explicit section dividers to keep context whole
-    sections = re.split(r'--- SECTION \d+:', content)
-    
+
+    # Split by section dividers (=== SECTION or --- SECTION)
+    sections = re.split(r'(?:===|---)\s*SECTION\s*\d+', content)
+
     chunks = []
     for s in sections:
         s = s.strip()
-        if s:
-            # Overlap handling or further splitting could go here if chunks are too massive,
-            # but for 45KB total, section-level chunking is usually optimal for Vedic rules.
+        if s and len(s) > 50:  # Skip empty or trivial fragments
             chunks.append(s)
-            
+
     return chunks
 
-def initialize_db():
-    """Populates the vector database if it's currently empty."""
-    if collection.count() == 0:
-        print("🌱 Initializing ChromaDB Vector Database with Vedic Corpus...")
-        chunks = load_and_chunk_texts()
-        
-        # Prepare data for Chroma
-        documents = []
-        ids = []
-        metadatas = []
-        
-        for i, chunk in enumerate(chunks):
-            documents.append(chunk)
-            ids.append(f"chunk_{i}")
-            # Basic metadata, you could add topic tags here if desired
-            metadatas.append({"source": "vedic_knowledge_base.txt", "chunk_id": i})
-            
-        # Add to collection (this will compute embeddings automatically)
-        collection.add(
-            documents=documents,
-            metadatas=metadatas,
-            ids=ids
-        )
-        print(f"✅ Successfully embedded {len(chunks)} Vedic logic chunks.")
 
-# Initialize the DB on first import
+def _compute_content_hash(chunks: list[str]) -> str:
+    """Hash of all chunk content to detect corpus changes."""
+    combined = "\n".join(chunks)
+    return hashlib.sha256(combined.encode('utf-8')).hexdigest()[:16]
+
+
+def _embed_texts(texts: list[str], task_type: str = "RETRIEVAL_DOCUMENT") -> np.ndarray:
+    """Embed a list of texts using Gemini embedding model."""
+    # Gemini embedding API accepts batches of content
+    # Process in batches of 100 to stay within limits
+    all_embeddings = []
+    batch_size = 100
+
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        result = client.models.embed_content(
+            model=EMBEDDING_MODEL,
+            contents=batch,
+            config=types.EmbedContentConfig(
+                task_type=task_type,
+            ),
+        )
+        for emb in result.embeddings:
+            all_embeddings.append(emb.values)
+
+    return np.array(all_embeddings, dtype=np.float32)
+
+
+def _cosine_similarity(query_vec: np.ndarray, corpus_vecs: np.ndarray) -> np.ndarray:
+    """Compute cosine similarity between a query vector and corpus matrix."""
+    # Normalize
+    query_norm = query_vec / (np.linalg.norm(query_vec) + 1e-10)
+    corpus_norms = corpus_vecs / (np.linalg.norm(corpus_vecs, axis=1, keepdims=True) + 1e-10)
+    return corpus_norms @ query_norm
+
+
+def initialize_db():
+    """Populates the in-memory vector store, using disk cache when possible."""
+    global _chunks, _embeddings
+
+    _chunks = load_and_chunk_texts()
+    content_hash = _compute_content_hash(_chunks)
+
+    # Try to load cached embeddings
+    if os.path.exists(CACHE_PATH):
+        try:
+            cache = np.load(CACHE_PATH, allow_pickle=True)
+            if str(cache.get('hash', '')) == content_hash:
+                _embeddings = cache['embeddings']
+                print(f"✅ Loaded {len(_chunks)} cached Gemini embeddings from disk.")
+                return
+            else:
+                print("🔄 Corpus changed — re-embedding with Gemini...")
+        except Exception as e:
+            print(f"⚠ Cache load failed ({e}), re-embedding...")
+
+    # Compute fresh embeddings
+    print(f"🌱 Embedding {len(_chunks)} Vedic corpus chunks with {EMBEDDING_MODEL}...")
+    _embeddings = _embed_texts(_chunks, task_type="RETRIEVAL_DOCUMENT")
+
+    # Cache to disk
+    np.savez(CACHE_PATH, embeddings=_embeddings, hash=np.array(content_hash))
+    print(f"✅ Embedded and cached {len(_chunks)} chunks with Gemini.")
+
+
+# Initialize on import
 initialize_db()
 
-def retrieve_classical_texts(query: str, n_results: int = 3):
+
+def retrieve_classical_texts(query: str, n_results: int = 3) -> str:
     """
-    Performs a semantic vector search using ChromaDB.
-    Finds the mathematical closest rules to the meaning of the query.
+    Performs semantic vector search using Gemini embeddings.
+    Finds the closest Vedic knowledge chunks to the query.
     """
+    global _embeddings, _chunks
+
+    if _embeddings is None or len(_chunks) == 0:
+        return ""
+
     try:
-        results = collection.query(
-            query_texts=[query],
-            n_results=n_results
-        )
-        
-        if not results['documents'] or not results['documents'][0]:
-            return ""
-            
+        # Embed the query
+        query_embedding = _embed_texts([query], task_type="RETRIEVAL_QUERY")[0]
+
+        # Compute similarities
+        similarities = _cosine_similarity(query_embedding, _embeddings)
+
+        # Get top-N indices
+        top_indices = np.argsort(similarities)[::-1][:n_results]
+
         rag_str = "=== RETRIEVED MASTER VEDIC KNOWLEDGE CONTEXT ===\n"
         rag_str += "The following are exact rules retrieved from the Vedic Master Knowledge Base (BPHS, Jaimini, Phaladeepika) based on semantic resonance with the user's query. YOU MUST APPLY THESE RULES EXACTLY in your response and synthesize them deeply.\n\n"
-        
-        # Retrieve the top matched documents
-        for i, doc in enumerate(results['documents'][0]):
-            # Cap each block at 2500 chars to manage token windows safely
-            snippet = doc[:2500] 
-            rag_str += f"[KNOWLEDGE BLOCK {i+1}]\n{snippet}...\n\n"
-            
+
+        for i, idx in enumerate(top_indices):
+            snippet = _chunks[idx][:2500]
+            score = similarities[idx]
+            rag_str += f"[KNOWLEDGE BLOCK {i + 1}] (relevance: {score:.3f})\n{snippet}...\n\n"
+
         rag_str += "=== END MASTER KNOWLEDGE CONTEXT ==="
         return rag_str
-        
+
     except Exception as e:
         print(f"Error in vector retrieval: {e}")
         return ""
 
-if __name__ == "__main__":
-    test_query = "Why am I facing delays and sorrow in my career?"
-    print(f"TESTING QUERY: '{test_query}'\n")
-    print(retrieve_classical_texts(test_query))
 
 if __name__ == "__main__":
+    print("\n" + "=" * 60)
+    print(f"🔮 Gemini RAG Engine — {EMBEDDING_MODEL}")
+    print(f"   Corpus chunks: {len(_chunks)}")
+    print(f"   Embedding dims: {_embeddings.shape[1] if _embeddings is not None else 'N/A'}")
+    print("=" * 60)
+
+    print("\n--- Test Query 1 ---")
     print(retrieve_classical_texts("What happens if my sun is with ketu?"))
-    print("\n----------------\n")
-    print(retrieve_classical_texts("Is my debilitated mars bad for marriage?"))
 
+    print("\n--- Test Query 2 ---")
+    print(retrieve_classical_texts("Is my debilitated mars bad for marriage?"))
