@@ -53,11 +53,16 @@ def get_next_api_key():
 GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
 
 CLOUD_MODELS = [
-    "gemini-2.5-flash",
     "gemini-2.0-flash",
+    "gemini-2.5-flash",
     "gemini-2.0-flash-exp",
     "gemini-flash-latest",
 ]
+
+# Configure generation for stability
+DEFAULT_TEMP = 0.2
+DEFAULT_TOKENS = 16384  # Double the limit to prevent truncation errors
+DEFAULT_TOP_P = 0.85
 
 # Groq config — using a safe, high-limit model
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
@@ -350,9 +355,9 @@ async def call_gemini(messages: list, api_key: str = None, max_retries: int = 1)
                 payload = {
                     "contents": gemini_contents,
                     "generationConfig": {
-                        "temperature": 0.2,
-                        "maxOutputTokens": 8192,
-                        "topP": 0.85,
+                        "temperature": DEFAULT_TEMP,
+                        "maxOutputTokens": DEFAULT_TOKENS,
+                        "topP": DEFAULT_TOP_P,
                         "responseMimeType": "application/json",
                     }
                 }
