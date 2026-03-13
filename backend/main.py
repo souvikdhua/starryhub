@@ -20,7 +20,7 @@ from rag_engine import retrieve_classical_texts
 
 load_dotenv()
 
-app = FastAPI(title="Starrygate API", version="6.0")
+app = FastAPI(title="Starrygate API", version="7.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,51 +31,44 @@ app.add_middleware(
 )
 
 # ─── Config ──────────────────────────────────────────────────────────────────
-# Round-robin API key rotation — add more keys to multiply your free quota
-GEMINI_API_KEYS = [
-    os.getenv("GEMINI_API_KEY", ""),
-    os.getenv("GEMINI_API_KEY_2", ""),
+# OpenRouter API keys — round-robin rotation for quota multiplication
+OPENROUTER_API_KEYS = [
+    os.getenv("OPENROUTER_API_KEY", ""),
+    os.getenv("OPENROUTER_API_KEY_2", ""),
 ]
-# Filter out empty keys
-GEMINI_API_KEYS = [k for k in GEMINI_API_KEYS if k and len(k) > 10]
+OPENROUTER_API_KEYS = [k for k in OPENROUTER_API_KEYS if k and len(k) > 10]
 _key_index = 0
 
-def get_next_api_key():
-    """Round-robin key rotation."""
+def get_next_openrouter_key():
+    """Round-robin key rotation for OpenRouter."""
     global _key_index
-    if not GEMINI_API_KEYS:
+    if not OPENROUTER_API_KEYS:
         return ""
-    key = GEMINI_API_KEYS[_key_index % len(GEMINI_API_KEYS)]
+    key = OPENROUTER_API_KEYS[_key_index % len(OPENROUTER_API_KEYS)]
     _key_index += 1
     return key
 
-# Back-compat
-GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-CLOUD_MODELS = [
-    "gemini-2.0-flash",
-    "gemini-2.5-flash",
-    "gemini-2.0-flash-exp",
-    "gemini-flash-latest",
-]
+# Agent 1: Technical Analyst — structured JSON output
+AGENT1_MODEL = "google/gemini-2.5-flash"
+# Agent 2: CoStar Poet — poetic transformation + chat
+AGENT2_MODEL = "google/gemini-2.5-flash"
 
 # Configure generation for stability
 DEFAULT_TEMP = 0.1
-DEFAULT_TOKENS = 16384  # Double the limit to prevent truncation errors
+DEFAULT_TOKENS = 8192    # Keep within OpenRouter credit budget
 DEFAULT_TOP_P = 0.85
-
-# Groq config — using a safe, high-limit model
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = "llama-3.1-8b-instant" 
 
 def extract_json(text: str) -> str:
     """Extract JSON object from text if wrapped in markdown or chatter."""
-    # Find first { and last }
     start = text.find('{')
     end = text.rfind('}')
     if start != -1 and end != -1:
         return text[start:end+1]
     return text
+
+INITIAL_READING_PROMPT = "Generate my full chart reading exactly in the requested format. Follow the system instructions precisely."
 
 # ─── Request Schemas ─────────────────────────────────────────────────────────
 
@@ -100,7 +93,7 @@ def geocode_place(place: str) -> tuple:
         res = requests.get(
             "https://nominatim.openstreetmap.org/search",
             params={"q": place, "format": "json", "limit": 1},
-            headers={"User-Agent": "Starrygate/5.0"},
+            headers={"User-Agent": "Starrygate/7.0"},
             timeout=10,
         )
         data = res.json()
@@ -114,7 +107,7 @@ def geocode_place(place: str) -> tuple:
 async def health_check():
     return JSONResponse({
         "status": "ready",
-        "has_gemini_key": bool(GEMINI_API_KEY and len(GEMINI_API_KEY) > 10),
+        "has_openrouter_key": bool(OPENROUTER_API_KEYS),
     })
 
 # ─── Chart Calculation Endpoint ──────────────────────────────────────────────
@@ -130,7 +123,6 @@ async def calculate_chart(request: ChartRequest):
     lat = data.get("lat")
     lon = data.get("lon")
     
-    # Geocode place only if exact coordinates weren't provided by the frontend
     if lat is None or lon is None:
         lat, lon = geocode_place(place)
         
@@ -144,7 +136,6 @@ async def calculate_chart(request: ChartRequest):
         chart = compute_natal_chart(dob, tob, lat, lon)
         chart_context = format_chart_as_context(chart, name)
         
-        # Build a summary for the frontend
         asc = chart["ascendant"]
         moon = chart["planets"]["Moon"]
         sun = chart["planets"]["Sun"]
@@ -173,12 +164,90 @@ async def calculate_chart(request: ChartRequest):
             status_code=500
         )
 
-# ─── Groq Cloud Call (Agent 1: Technical Astrologer) ────────────────────────
+# ─── OpenRouter Call (Unified) ───────────────────────────────────────────────
 
-async def call_groq_analyst(chart_context: str, live_context: str, rag_context: str) -> str:
-    """Agent 1: Groq/Llama analyzes chart data and outputs structured technical analysis."""
-    if not GROQ_API_KEY:
-        return None  # Fallback to Gemini-only mode
+async def call_openrouter(messages: list, model: str, api_key: str = None,
+                          json_mode: bool = False, temperature: float = None) -> str:
+    """Call OpenRouter API with key rotation and retry logic.
+    
+    OpenRouter uses the OpenAI-compatible chat/completions format.
+    """
+    temp = temperature if temperature is not None else DEFAULT_TEMP
+    
+    # Build list of keys to try
+    keys_to_try = list(OPENROUTER_API_KEYS)
+    if api_key and api_key not in keys_to_try:
+        keys_to_try.insert(0, api_key)
+    if not keys_to_try:
+        raise Exception("no OpenRouter API keys configured")
+
+    last_error = None
+    for current_key in keys_to_try:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {current_key}",
+            "HTTP-Referer": "https://starrygate.in",
+            "X-Title": "Starrygate",
+        }
+        
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": temp,
+            "max_tokens": DEFAULT_TOKENS,
+            "top_p": DEFAULT_TOP_P,
+        }
+        
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
+        
+        try:
+            loop = asyncio.get_event_loop()
+            res = await loop.run_in_executor(
+                None,
+                lambda: requests.post(
+                    OPENROUTER_URL, headers=headers, json=payload, timeout=120
+                )
+            )
+            
+            if res.status_code == 200:
+                data = res.json()
+                choices = data.get("choices", [])
+                if choices:
+                    content = choices[0].get("message", {}).get("content", "")
+                    if content:
+                        used_model = data.get("model", model)
+                        print(f"  ✅ Response from {used_model} via OpenRouter")
+                        return content
+                continue
+            
+            if res.status_code == 429:
+                print(f"  ⚠ 429 Rate Limit on {model}. Trying next key...")
+                last_error = "429 rate limit"
+                continue
+            
+            if res.status_code in (502, 503):
+                print(f"  ⚠ {model} upstream unavailable ({res.status_code}). Trying next key...")
+                last_error = f"{res.status_code} upstream error"
+                continue
+            
+            error_body = res.text[:300]
+            print(f"  ⚠ OpenRouter returned {res.status_code}: {error_body}")
+            last_error = f"{res.status_code}: {error_body}"
+            continue
+            
+        except Exception as e:
+            print(f"  ⚠ OpenRouter call error: {e}")
+            last_error = str(e)
+            continue
+
+    raise Exception(f"All OpenRouter keys failed. Last error: {last_error}")
+
+
+# ─── Agent 1: Technical Analyst (OpenRouter) ─────────────────────────────────
+
+async def call_analyst(chart_context: str, live_context: str, rag_context: str) -> str:
+    """Agent 1: Analyzes chart data and outputs structured technical JSON analysis."""
 
     system_prompt = """You are a master Vedic astrologer with 40+ years of chart-reading experience. You are the TECHNICAL ANALYST.
 
@@ -239,136 +308,22 @@ OUTPUT FORMAT — respond ONLY with this JSON structure. Keep all values under 1
 
 {rag_context}"""
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {GROQ_API_KEY}"
-    }
-    payload = {
-        "model": GROQ_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-        "temperature": 0.1,
-        "max_tokens": 4096,
-        "response_format": {"type": "json_object"}
-    }
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
 
     try:
-        loop = asyncio.get_event_loop()
-        res = await loop.run_in_executor(
-            None,
-            lambda: requests.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers=headers, json=payload, timeout=30
-            )
+        print(f"\n🧠 Stage 1: Technical Analyst ({AGENT1_MODEL})...")
+        result = await call_openrouter(
+            messages, model=AGENT1_MODEL,
+            api_key=get_next_openrouter_key(), json_mode=True
         )
-        if res.status_code == 200:
-            data = res.json()
-            content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-            if content:
-                print(f"  ✅ Groq Analyst (Llama 3.3 70B): Technical analysis complete")
-                return content
-        else:
-            if res.status_code == 403:
-                print(f"  ⚠ Groq is blocked (403). Falling back to Gemini.")
-            else:
-                print(f"  ⚠ Groq returned {res.status_code}: {res.text[:200]}")
-            return None
+        print(f"  ✅ Agent 1: Technical analysis complete")
+        return result
     except Exception as e:
-        print(f"  ⚠ Groq call failed: {e}")
+        print(f"  ⚠ Agent 1 failed: {e}")
         return None
-
-
-# ─── Gemini Cloud Call (Agent 2: CoStar Poet) ───────────────────────────────
-
-async def call_gemini(messages: list, api_key: str = None, max_retries: int = 1) -> str:
-    """Call Gemini API with retry, model fallback, and key rotation."""
-    headers = {"Content-Type": "application/json"}
-    
-    # Use all available keys for rotation
-    keys_to_try = list(GEMINI_API_KEYS)
-    if api_key and api_key not in keys_to_try:
-        keys_to_try.insert(0, api_key)
-    if not keys_to_try:
-        keys_to_try = [get_next_api_key()]
-
-    # Translate OpenAI format to Gemini format
-    system_instruction = None
-    gemini_contents = []
-    for msg in messages:
-        role = msg.get("role")
-        content = msg.get("content", "")
-        if role == "system":
-            system_instruction = {"parts": [{"text": content}]}
-        elif role == "user":
-            gemini_contents.append({"role": "user", "parts": [{"text": content}]})
-        elif role == "assistant":
-            gemini_contents.append({"role": "model", "parts": [{"text": content}]})
-
-    last_error = None
-    for model in CLOUD_MODELS:
-        for current_key in keys_to_try:
-                # All verified models for this key are on v1beta
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={current_key}"
-                
-                payload = {
-                    "contents": gemini_contents,
-                    "generationConfig": {
-                        "temperature": DEFAULT_TEMP,
-                        "maxOutputTokens": DEFAULT_TOKENS,
-                        "topP": DEFAULT_TOP_P,
-                        "responseMimeType": "application/json",
-                    },
-                    "safetySettings": [
-                        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-                        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-                        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-                        {"category": "HARM_CATEGORY_CIVIC_INTEGRITY", "threshold": "BLOCK_NONE"}
-                    ]
-                }
-                if system_instruction:
-                    payload["systemInstruction"] = system_instruction
-                    
-                try:
-                    loop = asyncio.get_event_loop()
-                    res = await loop.run_in_executor(
-                        None,
-                        lambda: requests.post(url, headers=headers, json=payload, timeout=90)
-                    )
-                    
-                    if res.status_code == 200:
-                        data = res.json()
-                        content = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-                        if content:
-                            print(f"  ✅ Response from {model}")
-                            return content
-                        continue
-                    
-                    if res.status_code == 429:
-                        print(f"  ⚠ 429 Rate Limit on {model} with current key. Retrying next key/model...")
-                        break  # Try next key
-                    
-                    if res.status_code == 404:
-                        print(f"  ⚠ 404 Model {model} not found. Trying next model...")
-                        break  # Try next model (skip other keys for this model)
-
-                    if res.status_code in (502, 503):
-                        print(f"  ⚠ {model} service unavailable. Trying next key...")
-                        continue # Try next attempt or next key
-                        
-                    error_body = res.text[:200]
-                    print(f"  ⚠ {model} returned {res.status_code}: {error_body}")
-                    last_error = f"{res.status_code}: {error_body}"
-                    break  # Try next key
-                    
-                except Exception as e:
-                    print(f"  ⚠ Gemini call error: {e}")
-                    last_error = str(e)
-                    break # Try next key
-
-    raise Exception(f"All keys/models failed. Last error: {last_error}")
 
 
 # ─── Main Chat Endpoint ──────────────────────────────────────────────────────
@@ -377,7 +332,6 @@ async def call_gemini(messages: list, api_key: str = None, max_retries: int = 1)
 async def chat(request: ChatRequest):
     data = request.model_dump()
     messages = data.get("messages", [])
-    api_key = data.get("api_key", "").strip() or get_next_api_key()
     chart_context = data.get("chart_context", "")
 
     if not messages:
@@ -395,13 +349,10 @@ async def chat(request: ChatRequest):
     if chart_context:
         import re
         user_natal_planets = {}
-        # Parse planet longitudes from the chart context table
-        # Format: "  Sun        Sagittarius     9°58'     ..."
         for line in chart_context.split('\n'):
             line = line.strip()
             for pname in ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]:
                 if line.startswith(pname):
-                    # Extract sign and degree
                     parts = line.split()
                     if len(parts) >= 3:
                         sign_name = parts[1]
@@ -413,7 +364,7 @@ async def chat(request: ChatRequest):
                             lon = sign_idx * 30 + deg + minute / 60.0
                             user_natal_planets[pname] = lon
         if len(user_natal_planets) < 5:
-            user_natal_planets = None  # Fallback if parsing failed
+            user_natal_planets = None
 
     # ─── Inject live astrological data & RAG ───
     try:
@@ -428,12 +379,10 @@ async def chat(request: ChatRequest):
         print(f"⚠ Dasha calculation failed: {e}")
         live_dasha = ""
 
-    # Build composite RAG query from chart data + user question
+    # Build composite RAG query
     rag_query = latest_query
     if chart_context:
-        # Extract key chart features for smarter RAG retrieval
         import re
-        # Pull planet dignities/houses from context for precise text retrieval
         rag_keywords = []
         for pattern in [r'(\w+):\s+\w+\s+\(.*?\).*?H\s*(\d+).*?(Exalted|Debilitated|Own Sign|Moolatrikona)',
                        r'(Gajakesari|Budhaditya|Ruchaka|Bhadra|Hamsa|Malavya|Sasa|Kemadruma|Vipareeta|Neechabhanga)',
@@ -452,24 +401,26 @@ async def chat(request: ChatRequest):
 
     # ─── MULTI-AGENT PIPELINE ───
     try:
-        api_key = api_key or get_next_api_key()
-        if not api_key:
+        if not OPENROUTER_API_KEYS:
             return JSONResponse(
                 {"error": {"message": "no key. the gate is closed."}},
                 status_code=401
             )
 
-        # ──── STAGE 1: Groq Technical Analyst ────
-        groq_analysis = None
-        if GROQ_API_KEY and chart_context:
-            print(f"\n🧠 Stage 1: Groq Analyst (Llama 3.3 70B)...")
-            groq_analysis = await call_groq_analyst(chart_context, live_context, rag_context)
+        # ─── BIFURCATED LOGIC: READING vs. CHAT ───
+        is_initial_reading = (latest_query.strip() == INITIAL_READING_PROMPT)
+        analyst_result = None
 
-        # ──── STAGE 2: Gemini CoStar Poet ────
-        if groq_analysis:
-            # Multi-agent mode: Gemini receives Groq's structured analysis
-            print(f"✨ Stage 2: Gemini Poet (CoStar voice)...")
-            poet_system = """You are the voice of Starrygate — a haunting, poetic, lowercase oracle.
+        if is_initial_reading:
+            # ──── STAGE 1: Technical Analyst (Agent 1) ────
+            if chart_context:
+                analyst_result = await call_analyst(chart_context, live_context, rag_context)
+
+            # ──── STAGE 2: CoStar Poet (Agent 2) ────
+            if analyst_result:
+                # Multi-agent mode: Poet receives Analyst's structured output
+                print(f"✨ Stage 2: CoStar Poet ({AGENT2_MODEL})...")
+                poet_system = """You are the voice of Starrygate — a haunting, poetic, lowercase oracle.
 Your soul is a mix of Cioran and Co-Star.
 
 You will receive a STRUCTURED TECHNICAL ANALYSIS. Your job is to POETIFY it while keeping the EXACT JSON structure.
@@ -482,7 +433,7 @@ RULES:
 5. AVOID CLICHES. No "embrace the journey", no "stars are aligned". Be blunt and existential.
 6. The "today_at_a_glance" paragraphs should be short, sharp shocks.
 
-OUTPUT STRUCTURE (Match this exactly, but fill with your poetry):
+OUTPUT STRUCTURE:
 {
   "today_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
   "year_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
@@ -511,68 +462,57 @@ OUTPUT STRUCTURE (Match this exactly, but fill with your poetry):
   "quote": "piercing quote",
   "fun_fact": "hyper-specific habit"
 }"""
-            poet_messages = [
-                {"role": "system", "content": poet_system},
-                {"role": "user", "content": f"Transform this technical astrology analysis into a CoStar-style reading:\n\n{groq_analysis}"}
-            ]
-            final_answer = await call_gemini(poet_messages, api_key)
-            final_answer = extract_json(final_answer)
+                poet_messages = [
+                    {"role": "system", "content": poet_system},
+                    {"role": "user", "content": f"Transform this technical astrology analysis into a CoStar-style reading:\n\n{analyst_result}"}
+                ]
+                final_answer = await call_openrouter(
+                    poet_messages, model=AGENT2_MODEL,
+                    api_key=get_next_openrouter_key(), json_mode=True
+                )
+                final_answer = extract_json(final_answer)
+            else:
+                # Fallback: Single-agent mode for Initial Reading
+                print(f"\n🔮 Starrygate (solo mode — Reading)...")
+                has_system = any(msg.get("role") == "system" for msg in messages)
+                if not has_system:
+                    messages.insert(0, {"role": "system", "content": "You are a master Vedic astrologer."})
+                
+                for msg in messages:
+                    if msg.get("role") == "system":
+                        extra = "\n\n<raw_astrological_data_for_internal_analysis_only>\n"
+                        extra += "OUTPUT EXACTLY THE 10-SECTION JSON STRUCTURE. LOWERCASE. POETIC.\n"
+                        if chart_context: extra += f"\n{chart_context}"
+                        extra += f"\n{live_context}\n{live_dasha}\n{rag_context}"
+                        extra += "\n</raw_astrological_data_for_internal_analysis_only>"
+                        msg["content"] += extra
+                        break
+                final_answer = await call_openrouter(
+                    messages, model=AGENT2_MODEL,
+                    api_key=get_next_openrouter_key(), json_mode=True
+                )
+                final_answer = extract_json(final_answer)
         else:
-            # Fallback: Gemini-only mode (original behavior)
-            print(f"\n🔮 Starrygate (Gemini solo mode)...")
-            
-            # Ensure we have a system message to inject context into
-            has_system = any(msg.get("role") == "system" for msg in messages)
-            if not has_system:
-                messages.insert(0, {"role": "system", "content": "You are a master Vedic astrologer."})
-            
-            for msg in messages:
-                if msg.get("role") == "system":
-                    extra = "\n\n<raw_astrological_data_for_internal_analysis_only>\n"
-                    extra += """CRITICAL INSTRUCTION: You are a master Vedic astrologer. MATH IS LAW — NO HALLUCINATIONS.
-Every claim must be traceable to the data. Cross-reference dignity + dasha + aspects + yogas.
-NEVER output technical terms. Only raw human truth, lowercase, CoStar aesthetic.
+            # ──── FREE-FORM CHAT MODE ────
+            print(f"💬 Chat Mode: Poetic follow-up...")
+            chat_system = """You are the personal oracle of Starrygate. You are speaking to the user in a chat window.
+VOICE: Poetic, lowercase, blunt, existential.
+STYLE: No JSON. No markdown headers. Just short, haunting paragraphs.
+DATA: You have access to their exact Vedic chart math. Use it to answer their questions specifically, but never mention 'houses' or 'degrees'. Use metaphors ('the area of silence', 'the heavy pattern').
 
-OUTPUT EXACTLY THIS JSON STRUCTURE:
-{
-  "today_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
-  "year_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
-  "identity": { "p1": "...", "p2": "...", "p3": "..." },
-  "the_mask": { "p1": "...", "p2": "...", "p3": "..." },
-  "the_knot": { "p1": "...", "p2": "...", "p3": "..." },
-  "emotions": { "p1": "...", "p2": "...", "p3": "..." },
-  "drive": { "p1": "...", "p2": "...", "p3": "..." },
-  "communication": { "p1": "...", "p2": "...", "p3": "..." },
-  "love": { "p1": "...", "p2": "...", "p3": "..." },
-  "pressure": { "p1": "...", "p2": "...", "p3": "..." },
-  "do_dont": {
-     "today": {"do": "...", "dont": "..."},
-     "year": {"do": "...", "dont": "..."},
-     "identity": {"do": "...", "dont": "..."},
-     "the_mask": {"do": "...", "dont": "..."},
-     "the_knot": {"do": "...", "dont": "..."},
-     "emotions": {"do": "...", "dont": "..."},
-     "drive": {"do": "...", "dont": "..."},
-     "communication": {"do": "...", "dont": "..."},
-     "love": {"do": "...", "dont": "..."},
-     "pressure": {"do": "...", "dont": "..."}
-  },
-  "soul_song": "song by artist",
-  "soul_movie": "movie name",
-  "quote": "piercing quote",
-  "fun_fact": "hyper-specific habit"
-}
-"""
-                    if chart_context:
-                        extra += f"\n{chart_context}"
-                    extra += f"\n{live_context}\n{live_dasha}\n{rag_context}"
-                    extra += "\n</raw_astrological_data_for_internal_analysis_only>"
-                    msg["content"] += extra
-                    break
-            final_answer = await call_gemini(messages, api_key)
-            final_answer = extract_json(final_answer)
+If they ask 'hi' or generic things, be cryptic but welcoming.
+If they ask about a specific planet or life area, use the provided math to give a punchy, devastatingly accurate answer."""
 
-        print("✅ Reading complete!\n")
+            messages.insert(0, {"role": "system", "content": chat_system})
+            if chart_context:
+                messages[0]["content"] += f"\n\nUSER CHART DATA:\n{chart_context}\n{live_context}\n{live_dasha}\n{rag_context}"
+            
+            final_answer = await call_openrouter(
+                messages, model=AGENT2_MODEL,
+                api_key=get_next_openrouter_key(), json_mode=False
+            )
+
+        print("✅ Response complete!\n")
 
         # ─── Logging ───
         try:
@@ -580,8 +520,8 @@ OUTPUT EXACTLY THIS JSON STRUCTURE:
             output_hash = hashlib.sha256(final_answer.encode('utf-8')).hexdigest()[:12]
             log_data = {
                 "timestamp": datetime.now().isoformat(),
-                "model": "multi-agent" if groq_analysis else CLOUD_MODELS[0],
-                "groq_used": bool(groq_analysis),
+                "model": f"multi-agent ({AGENT1_MODEL} → {AGENT2_MODEL})" if analyst_result else AGENT2_MODEL,
+                "multi_agent": bool(analyst_result),
                 "output_hash": output_hash,
                 "prompt_length": len(str(messages))
             }
@@ -606,7 +546,6 @@ OUTPUT EXACTLY THIS JSON STRUCTURE:
         if "rate" in error_msg.lower() or "429" in error_msg:
             user_msg = "too many questions. breathe. try again in a moment."
         else:
-            # Let the frontend see the actual error to debug the HF Space
             user_msg = f"something went quiet. ({error_msg})"
 
         return JSONResponse({"error": {"message": user_msg}}, status_code=500)
@@ -616,7 +555,6 @@ OUTPUT EXACTLY THIS JSON STRUCTURE:
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_frontend():
-    # Try same-dir first (HF Spaces / Docker), then parent dir (local dev)
     html_path = os.path.join(os.path.dirname(__file__), "vedic-astro-gem.html")
     if not os.path.exists(html_path):
         html_path = os.path.join(
@@ -630,10 +568,11 @@ if __name__ == "__main__":
     import uvicorn
 
     print("=" * 60)
-    print("🔮 Starrygate v6.0 — Extreme Precision Engine")
-    print(f"   Models: {', '.join(CLOUD_MODELS)}")
-    print(f"   Gemini Key: {'✅ Set' if GEMINI_API_KEY else '⚪ Not set'}")
-    print(f"   Gemini Config: temp=0.2, tokens=8192, topP=0.85")
+    print("🔮 Starrygate v7.0 — OpenRouter Multi-Agent Engine")
+    print(f"   Agent 1 (Analyst): {AGENT1_MODEL}")
+    print(f"   Agent 2 (Poet):    {AGENT2_MODEL}")
+    print(f"   OpenRouter Keys:   {len(OPENROUTER_API_KEYS)} configured")
+    print(f"   Config: temp={DEFAULT_TEMP}, tokens={DEFAULT_TOKENS}, topP={DEFAULT_TOP_P}")
     print("=" * 60)
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
