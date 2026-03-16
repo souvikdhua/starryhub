@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Any
 from dotenv import load_dotenv
 
 from astro_calc import (
@@ -17,6 +17,7 @@ from astro_calc import (
     compute_natal_chart, format_chart_as_context
 )
 from rag_engine import retrieve_classical_texts
+from rag_crawler import run_background_crawler
 
 load_dotenv()
 
@@ -29,6 +30,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_event():
+    """Starts background tasks when the server boots on Hugging Face Space."""
+    print("✨ FastAPI Server started. Booting background services...")
+    # Spin off the slow background crawler without blocking main thread
+    asyncio.create_task(run_background_crawler())
 
 # ─── Config ──────────────────────────────────────────────────────────────────
 # OpenRouter API keys — round-robin rotation for quota multiplication
@@ -57,8 +65,11 @@ AGENT2_MODEL = "google/gemini-2.5-flash"
 
 # Configure generation for stability
 DEFAULT_TEMP = 0.1
-DEFAULT_TOKENS = 8192    # Keep within OpenRouter credit budget
 DEFAULT_TOP_P = 0.85
+
+# Gemini direct API fallback (free tier: 500 req/day, 15 RPM)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_REST_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
 def extract_json(text: str) -> str:
     """Extract JSON object from text if wrapped in markdown or chatter."""
@@ -73,7 +84,7 @@ INITIAL_READING_PROMPT = "Generate my full chart reading exactly in the requeste
 # ─── Request Schemas ─────────────────────────────────────────────────────────
 
 class ChatRequest(BaseModel):
-    messages: list
+    messages: list[dict[str, Any]]
     api_key: str = ""
     chart_context: str = ""
 
@@ -84,6 +95,45 @@ class ChartRequest(BaseModel):
     name: str = ""    # optional name
     lat: Optional[float] = None
     lon: Optional[float] = None
+
+# --- Output Schemas (Structured JSON) ---
+class Section(BaseModel):
+    p1: str
+    p2: str
+    p3: str
+
+class DoDontDetail(BaseModel):
+    do: str
+    dont: str
+
+class DoDont(BaseModel):
+    today: DoDontDetail
+    year: DoDontDetail
+    identity: DoDontDetail
+    the_mask: DoDontDetail
+    the_knot: DoDontDetail
+    emotions: DoDontDetail
+    drive: DoDontDetail
+    communication: DoDontDetail
+    love: DoDontDetail
+    pressure: DoDontDetail
+
+class AstroReading(BaseModel):
+    today_at_a_glance: Section
+    year_at_a_glance: Section
+    identity: Section
+    the_mask: Section
+    the_knot: Section
+    emotions: Section
+    drive: Section
+    communication: Section
+    love: Section
+    pressure: Section
+    do_dont: DoDont
+    soul_song: str
+    soul_movie: str
+    quote: str
+    fun_fact: str
 
 # ─── Geocoding (Nominatim) ───────────────────────────────────────────────────
 
@@ -166,11 +216,13 @@ async def calculate_chart(request: ChartRequest):
 
 # ─── OpenRouter Call (Unified) ───────────────────────────────────────────────
 
-async def call_openrouter(messages: list, model: str, api_key: str = None,
-                          json_mode: bool = False, temperature: float = None) -> str:
-    """Call OpenRouter API with key rotation and retry logic.
+async def call_openrouter(messages: list[dict[str, Any]], model: str, api_key: Optional[str] = None,
+                          json_mode: bool = False, temperature: Optional[float] = None,
+                          max_tokens: Optional[int] = None) -> str:
+    """Call OpenRouter API with key rotation, retry logic, and Gemini fallback.
     
-    OpenRouter uses the OpenAI-compatible chat/completions format.
+    If max_tokens is None, it won't be sent — OpenRouter won't pre-check credits.
+    On 402 (payment required), automatically falls back to direct Gemini API.
     """
     temp = temperature if temperature is not None else DEFAULT_TEMP
     
@@ -179,9 +231,12 @@ async def call_openrouter(messages: list, model: str, api_key: str = None,
     if api_key and api_key not in keys_to_try:
         keys_to_try.insert(0, api_key)
     if not keys_to_try:
-        raise Exception("no OpenRouter API keys configured")
+        # No OpenRouter keys, go straight to Gemini fallback
+        print("  ⚠ No OpenRouter keys, using Gemini direct fallback...")
+        return await call_gemini_direct(messages, json_mode=json_mode, temperature=temp)
 
     last_error = None
+    hit_402 = False
     for current_key in keys_to_try:
         headers = {
             "Content-Type": "application/json",
@@ -190,13 +245,16 @@ async def call_openrouter(messages: list, model: str, api_key: str = None,
             "X-Title": "Starrygate",
         }
         
-        payload = {
+        payload: dict[str, Any] = {
             "model": model,
             "messages": messages,
             "temperature": temp,
-            "max_tokens": DEFAULT_TOKENS,
             "top_p": DEFAULT_TOP_P,
         }
+        
+        # Only set max_tokens if explicitly provided
+        if max_tokens is not None:
+            payload["max_tokens"] = max_tokens
         
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
@@ -221,6 +279,12 @@ async def call_openrouter(messages: list, model: str, api_key: str = None,
                         return content
                 continue
             
+            if res.status_code == 402:
+                print(f"  ⚠ OpenRouter 402: Insufficient credits. Will fallback to Gemini...")
+                hit_402 = True
+                last_error = "402 insufficient credits"
+                continue
+            
             if res.status_code == 429:
                 print(f"  ⚠ 429 Rate Limit on {model}. Trying next key...")
                 last_error = "429 rate limit"
@@ -241,7 +305,82 @@ async def call_openrouter(messages: list, model: str, api_key: str = None,
             last_error = str(e)
             continue
 
+    # If we hit 402 on all keys, fallback to direct Gemini API (free tier)
+    if hit_402 and GEMINI_API_KEY:
+        print("  🔄 All OpenRouter keys exhausted. Cannot fallback to free Gemini API because it is reserved for the background RAG Crawler.")
+        # We intentionally do NOT call_gemini_direct here to preserve the crawler's 1500 req/day quota.
+        raise Exception(f"All OpenRouter keys failed (402 Payment Required). Free tier is reserved for RAG Crawler. Last error: {last_error}")
+
     raise Exception(f"All OpenRouter keys failed. Last error: {last_error}")
+
+
+async def call_gemini_direct(messages: list[dict[str, Any]], json_mode: bool = False,
+                             temperature: float = 0.1) -> str:
+    """Direct Gemini REST API call as a free-tier fallback.
+    
+    Uses the same GEMINI_API_KEY used for embeddings.
+    Free tier: 500 requests/day, 15 requests/minute.
+    """
+    if not GEMINI_API_KEY:
+        raise Exception("No Gemini API key configured for fallback")
+    
+    # Convert OpenAI message format to Gemini format
+    system_instruction = ""
+    gemini_contents = []
+    
+    for msg in messages:
+        role = msg.get("role", "user")
+        content = msg.get("content", "")
+        
+        if role == "system":
+            system_instruction += content + "\n"
+        elif role == "user":
+            gemini_contents.append({"role": "user", "parts": [{"text": content}]})
+        elif role == "assistant":
+            gemini_contents.append({"role": "model", "parts": [{"text": content}]})
+    
+    payload: dict[str, Any] = {
+        "contents": gemini_contents,
+        "generationConfig": {
+            "temperature": temperature,
+            "topP": DEFAULT_TOP_P,
+        }
+    }
+    
+    if system_instruction:
+        payload["systemInstruction"] = {"parts": [{"text": system_instruction.strip()}]}
+    
+    if json_mode:
+        payload["generationConfig"]["responseMimeType"] = "application/json"
+    
+    try:
+        url = f"{GEMINI_REST_URL}?key={GEMINI_API_KEY}"
+        loop = asyncio.get_event_loop()
+        res = await loop.run_in_executor(
+            None,
+            lambda: requests.post(url, json=payload, timeout=120)
+        )
+        
+        if res.status_code == 200:
+            data = res.json()
+            candidates = data.get("candidates", [])
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts", [])
+                if parts:
+                    text = parts[0].get("text", "")
+                    if text:
+                        print(f"  ✅ Response from Gemini direct API (free tier)")
+                        return text
+        
+        error_text = res.text[:300]
+        raise Exception(f"Gemini direct API error {res.status_code}: {error_text}")
+        
+    except requests.exceptions.Timeout:
+        raise Exception("Gemini direct API timeout")
+    except Exception as e:
+        if "Gemini direct" in str(e):
+            raise
+        raise Exception(f"Gemini direct API call failed: {e}")
 
 
 # ─── Agent 1: Technical Analyst (OpenRouter) ─────────────────────────────────
@@ -249,56 +388,8 @@ async def call_openrouter(messages: list, model: str, api_key: str = None,
 async def call_analyst(chart_context: str, live_context: str, rag_context: str) -> str:
     """Agent 1: Analyzes chart data and outputs structured technical JSON analysis."""
 
-    system_prompt = """You are a master Vedic astrologer with 40+ years of chart-reading experience. You are the TECHNICAL ANALYST.
-
-Your job: Analyze the raw Swiss Ephemeris data and output a STRUCTURED JSON analysis. No poetry. No fluff. Pure astrological logic.
-
-MATH IS LAW — NO HALLUCINATIONS:
-1. Every claim MUST be directly traceable to the raw data provided.
-2. If Venus is strong, you CANNOT say they struggle with love. If Moon is debilitated, you CANNOT say they have emotional peace.
-3. Do not invent transits or dashas. Only use what is explicitly listed.
-
-CROSS-REFERENCE RULES:
-1. Never analyze a data point alone. Cross-reference dignity + dasha + aspects + yogas + house lords.
-2. Find STRONGEST planet (highest score) and WEAKEST planet (lowest score). Their gap IS the personality.
-3. Check D1 vs D9: Strong in D1 but weak in D9 = promise that never delivers. Weak in D1 but strong in D9 = late bloomer.
-4. Dasha lord activates whatever it touches natally.
-5. Bhava lord placements tell the PLOT, not just the theme.
-6. Atmakaraka = what the soul obsessively craves.
-
-OUTPUT FORMAT — respond ONLY with this JSON structure. Keep all values under 15 words. Lowercase only. Blunt tone. No jargon. No formatting. NOTHING ELSE but the JSON.
-{
-  "today_at_a_glance": {"tension": "...", "vibe": "...", "demands_attention": "..."},
-  "year_at_a_glance": {"overarching_lesson": "...", "tectonic_shift": "...", "dissolving": "..."},
-  "identity": {"core_synthesis": "...", "core_contradiction": "...", "hidden_truth": "..."},
-  "the_mask": {"outer_perception": "...", "inner_reality": "...", "misread": "..."},
-  "the_knot": {"recurring_wound": "...", "tripping_point": "...", "impossible_problem": "..."},
-  "emotions": {"landscape": "...", "pain_processing": "...", "secret_trigger": "..."},
-  "drive": {"force": "...", "fight_style": "...", "secret_motivation": "..."},
-  "communication": {"intellect": "...", "think_vs_speak": "...", "misinterpretation": "..."},
-  "love": {"craving": "...", "pattern": "...", "need_vs_choice": "..."},
-  "pressure": {"weight": "...", "crushing_point": "...", "time_relationship": "..."},
-  "do_dont": {
-    "today": {"do": "...", "dont": "..."},
-    "year": {"do": "...", "dont": "..."},
-    "identity": {"do": "...", "dont": "..."},
-    "the_mask": {"do": "...", "dont": "..."},
-    "the_knot": {"do": "...", "dont": "..."},
-    "emotions": {"do": "...", "dont": "..."},
-    "drive": {"do": "...", "dont": "..."},
-    "communication": {"do": "...", "dont": "..."},
-    "love": {"do": "...", "dont": "..."},
-    "pressure": {"do": "...", "dont": "..."}
-  },
-  "soul_song": "song by artist",
-  "soul_movie": "movie title",
-  "quote": "piercing quote",
-  "fun_fact": "specific habit",
-  "strongest_planet": "name and score",
-  "weakest_planet": "name and score",
-  "active_yogas": ["name"],
-  "dasha_summary": "mahadasha/antardasha effect"
-}"""
+    from prompts import ANALYST_SYSTEM_PROMPT
+    system_prompt = ANALYST_SYSTEM_PROMPT
 
     user_prompt = f"""Analyze this birth chart and output the structured JSON analysis.
 
@@ -324,6 +415,47 @@ OUTPUT FORMAT — respond ONLY with this JSON structure. Keep all values under 1
     except Exception as e:
         print(f"  ⚠ Agent 1 failed: {e}")
         return None
+
+
+# ─── OpenRouter RAG Synthesis (Contextual Compression) ───────────────────────
+
+async def synthesize_rag_context(raw_rag: str, chart_context: str, query: str) -> str:
+    """Use OpenRouter to distill raw retrieved chunks into a focused, chart-specific
+    knowledge brief. This is dramatically more powerful than dumping raw chunks."""
+    if not raw_rag or not chart_context:
+        return raw_rag
+
+    try:
+        from prompts import RAG_SYNTHESIS_SYSTEM_PROMPT
+        synth_system = RAG_SYNTHESIS_SYSTEM_PROMPT
+
+        synth_user = f"""CHART DATA:
+{chart_context}
+
+QUERY: {query}
+
+RAW RETRIEVED CLASSICAL TEXTS:
+{raw_rag}
+
+Extract and synthesize ONLY the rules that apply to this specific chart."""
+
+        messages = [
+            {"role": "system", "content": synth_system},
+            {"role": "user", "content": synth_user}
+        ]
+
+        print(f"  📚 RAG Synthesis: Distilling classical knowledge for this chart ({AGENT1_MODEL})...")
+        synthesized = await call_openrouter(
+            messages, model=AGENT1_MODEL,  # Back to full Flash for guaranteed reasoning quality
+            api_key=get_next_openrouter_key(),
+            json_mode=False, temperature=0.05
+        )
+        print(f"  ✅ RAG Synthesis complete ({len(synthesized)} chars)")
+        return f"=== SYNTHESIZED VEDIC KNOWLEDGE (chart-specific) ===\n{synthesized}\n=== END SYNTHESIZED KNOWLEDGE ==="
+
+    except Exception as e:
+        print(f"  ⚠ RAG Synthesis failed ({e}), using raw chunks")
+        return raw_rag
 
 
 # ─── Main Chat Endpoint ──────────────────────────────────────────────────────
@@ -366,20 +498,7 @@ async def chat(request: ChatRequest):
         if len(user_natal_planets) < 5:
             user_natal_planets = None
 
-    # ─── Inject live astrological data & RAG ───
-    try:
-        live_context = get_live_astro_context(natal_planets=user_natal_planets)
-    except Exception as e:
-        print(f"⚠ Live astro context failed: {e}")
-        live_context = ""
-
-    try:
-        live_dasha = get_current_dasha()
-    except Exception as e:
-        print(f"⚠ Dasha calculation failed: {e}")
-        live_dasha = ""
-
-    # Build composite RAG query
+    # ─── Build composite RAG query ───
     rag_query = latest_query
     if chart_context:
         import re
@@ -395,9 +514,43 @@ async def chat(request: ChatRequest):
                 else:
                     rag_keywords.append(m)
         if rag_keywords:
-            rag_query = f"{latest_query} {' '.join(rag_keywords[:8])}"
+            rag_query = f"{latest_query} {' '.join(str(k) for k in rag_keywords[:8])}"
 
-    rag_context = retrieve_classical_texts(rag_query, n_results=5)
+    # ─── Parallelize Live Data & RAG Embedding Retrieval for Speed ───
+    loop = asyncio.get_event_loop()
+    
+    # Fire off simultaneous tasks
+    future_context = loop.run_in_executor(None, get_live_astro_context, user_natal_planets)
+    future_dasha = loop.run_in_executor(None, get_current_dasha)
+    future_rag = loop.run_in_executor(None, retrieve_classical_texts, rag_query, 8) # Increased to 8 for more power
+    
+    results = await asyncio.gather(
+        future_context, future_dasha, future_rag, return_exceptions=True
+    )
+    
+    res_context, res_dasha, res_rag = results
+    
+    # Handle exceptions gracefully and type cast
+    if isinstance(res_context, Exception):
+        print(f"⚠ Live astro context failed: {res_context}")
+        live_context: str = ""
+    else:
+        live_context: str = str(res_context)
+        
+    if isinstance(res_dasha, Exception):
+        print(f"⚠ Dasha calculation failed: {res_dasha}")
+        live_dasha: str = ""
+    else:
+        live_dasha: str = str(res_dasha)
+        
+    if isinstance(res_rag, Exception):
+        print(f"⚠ RAG retrieval failed: {res_rag}")
+        raw_rag: str = ""
+    else:
+        raw_rag: str = str(res_rag)
+
+    # ─── Synthesize RAG context with OpenRouter for chart-specific focus ───
+    rag_context = await synthesize_rag_context(raw_rag, chart_context, latest_query)
 
     # ─── MULTI-AGENT PIPELINE ───
     try:
@@ -408,7 +561,9 @@ async def chat(request: ChatRequest):
             )
 
         # ─── BIFURCATED LOGIC: READING vs. CHAT ───
-        is_initial_reading = (latest_query.strip() == INITIAL_READING_PROMPT)
+        # Count only user messages (frontend always prepends a system message)
+        user_messages = [m for m in messages if m.get("role") != "system"]
+        is_initial_reading = (len(user_messages) <= 1 and latest_query.strip() == INITIAL_READING_PROMPT)
         analyst_result = None
 
         if is_initial_reading:
@@ -420,48 +575,8 @@ async def chat(request: ChatRequest):
             if analyst_result:
                 # Multi-agent mode: Poet receives Analyst's structured output
                 print(f"✨ Stage 2: CoStar Poet ({AGENT2_MODEL})...")
-                poet_system = """You are the voice of Starrygate — a haunting, poetic, lowercase oracle.
-Your soul is a mix of Cioran and Co-Star.
-
-You will receive a STRUCTURED TECHNICAL ANALYSIS. Your job is to POETIFY it while keeping the EXACT JSON structure.
-
-RULES:
-1. PURE JSON OUTPUT. No markdown blocks, no text before or after.
-2. LOWERCASE EVERYTHING.
-3. Use haunting, minimal, punchy metaphors. 
-4. DO NOT use technical terms (planets, houses, degrees). Use metaphors like "the red force", "the area of silence", "the pattern of expansion".
-5. AVOID CLICHES. No "embrace the journey", no "stars are aligned". Be blunt and existential.
-6. The "today_at_a_glance" paragraphs should be short, sharp shocks.
-
-OUTPUT STRUCTURE:
-{
-  "today_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
-  "year_at_a_glance": { "p1": "...", "p2": "...", "p3": "..." },
-  "identity": { "p1": "...", "p2": "...", "p3": "..." },
-  "the_mask": { "p1": "...", "p2": "...", "p3": "..." },
-  "the_knot": { "p1": "...", "p2": "...", "p3": "..." },
-  "emotions": { "p1": "...", "p2": "...", "p3": "..." },
-  "drive": { "p1": "...", "p2": "...", "p3": "..." },
-  "communication": { "p1": "...", "p2": "...", "p3": "..." },
-  "love": { "p1": "...", "p2": "...", "p3": "..." },
-  "pressure": { "p1": "...", "p2": "...", "p3": "..." },
-  "do_dont": {
-     "today": {"do": "...", "dont": "..."},
-     "year": {"do": "...", "dont": "..."},
-     "identity": {"do": "...", "dont": "..."},
-     "the_mask": {"do": "...", "dont": "..."},
-     "the_knot": {"do": "...", "dont": "..."},
-     "emotions": {"do": "...", "dont": "..."},
-     "drive": {"do": "...", "dont": "..."},
-     "communication": {"do": "...", "dont": "..."},
-     "love": {"do": "...", "dont": "..."},
-     "pressure": {"do": "...", "dont": "..."}
-  },
-  "soul_song": "song by artist",
-  "soul_movie": "movie name",
-  "quote": "piercing quote",
-  "fun_fact": "hyper-specific habit"
-}"""
+                from prompts import POET_SYSTEM_PROMPT
+                poet_system = POET_SYSTEM_PROMPT
                 poet_messages = [
                     {"role": "system", "content": poet_system},
                     {"role": "user", "content": f"Transform this technical astrology analysis into a CoStar-style reading:\n\n{analyst_result}"}
@@ -471,6 +586,12 @@ OUTPUT STRUCTURE:
                     api_key=get_next_openrouter_key(), json_mode=True
                 )
                 final_answer = extract_json(final_answer)
+                # Strict Schema Validation
+                try:
+                    AstroReading.model_validate_json(final_answer)
+                except Exception as ve:
+                    print(f"⚠ Pydantic validation failed on Agent 2 output: {ve}")
+                    raise Exception(f"AI returned invalid JSON structure: {ve}")
             else:
                 # Fallback: Single-agent mode for Initial Reading
                 print(f"\n🔮 Starrygate (solo mode — Reading)...")
@@ -492,17 +613,20 @@ OUTPUT STRUCTURE:
                     api_key=get_next_openrouter_key(), json_mode=True
                 )
                 final_answer = extract_json(final_answer)
+                # Strict Schema Validation
+                try:
+                    AstroReading.model_validate_json(final_answer)
+                except Exception as ve:
+                    print(f"⚠ Pydantic validation failed on Solo Agent output: {ve}")
+                    raise Exception(f"AI returned invalid JSON structure: {ve}")
         else:
             # ──── FREE-FORM CHAT MODE ────
             print(f"💬 Chat Mode: Poetic follow-up...")
-            chat_system = """You are the personal oracle of Starrygate. You are speaking to the user in a chat window.
-VOICE: Poetic, lowercase, blunt, existential.
-STYLE: No JSON. No markdown headers. Just short, haunting paragraphs.
-DATA: You have access to their exact Vedic chart math. Use it to answer their questions specifically, but never mention 'houses' or 'degrees'. Use metaphors ('the area of silence', 'the heavy pattern').
+            from prompts import CHAT_SYSTEM_PROMPT
+            chat_system = CHAT_SYSTEM_PROMPT
 
-If they ask 'hi' or generic things, be cryptic but welcoming.
-If they ask about a specific planet or life area, use the provided math to give a punchy, devastatingly accurate answer."""
-
+            # Remove the frontend's reading-template system instruction so the AI doesn't repeat the full reading
+            messages = [m for m in messages if m.get("role") != "system"]
             messages.insert(0, {"role": "system", "content": chat_system})
             if chart_context:
                 messages[0]["content"] += f"\n\nUSER CHART DATA:\n{chart_context}\n{live_context}\n{live_dasha}\n{rag_context}"
@@ -511,6 +635,8 @@ If they ask about a specific planet or life area, use the provided math to give 
                 messages, model=AGENT2_MODEL,
                 api_key=get_next_openrouter_key(), json_mode=False
             )
+
+        print("✅ Response complete!\n")
 
         print("✅ Response complete!\n")
 
@@ -568,11 +694,12 @@ if __name__ == "__main__":
     import uvicorn
 
     print("=" * 60)
-    print("🔮 Starrygate v7.0 — OpenRouter Multi-Agent Engine")
+    print("🔮 Starrygate v7.1 — OpenRouter + Gemini Fallback Engine")
     print(f"   Agent 1 (Analyst): {AGENT1_MODEL}")
     print(f"   Agent 2 (Poet):    {AGENT2_MODEL}")
     print(f"   OpenRouter Keys:   {len(OPENROUTER_API_KEYS)} configured")
-    print(f"   Config: temp={DEFAULT_TEMP}, tokens={DEFAULT_TOKENS}, topP={DEFAULT_TOP_P}")
+    print(f"   Gemini Fallback:   {'✅ configured' if GEMINI_API_KEY else '❌ not configured'}")
+    print(f"   Config: temp={DEFAULT_TEMP}, topP={DEFAULT_TOP_P}")
     print("=" * 60)
 
     uvicorn.run(app, host="0.0.0.0", port=8000)

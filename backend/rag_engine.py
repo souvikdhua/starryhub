@@ -193,6 +193,64 @@ def retrieve_classical_texts(query: str, n_results: int = 5) -> str:
         print(f"Error in vector retrieval: {e}")
         return ""
 
+def inject_dynamic_knowledge(new_text: str, source_url: str = "Background Crawler") -> bool:
+    """
+    Called by the background crawler to inject new knowledge directly into RAM
+    without restarting the Hugging Face instance.
+    """
+    global _embeddings, _chunks, _chunk_titles
+
+    if not new_text or len(new_text) < 50:
+        return False
+
+    try:
+        # Gemini formats it with "--- SECTION X: [TITLE] ---"
+        chunks = []
+        titles = []
+        
+        sections = re.split(r'---\s*SECTION\s*\d+[^:]*:\s*([^-]+)---', new_text)
+        
+        # If split worked, it returns [pre_text, title1, content1, title2, content2...]
+        if len(sections) > 1:
+            for i in range(1, len(sections), 2):
+                title = sections[i].strip()
+                content = sections[i+1].strip() if i+1 < len(sections) else ""
+                if len(content) > 30:
+                    chunks.append(f"{title}\n{content}")
+                    titles.append(title)
+        else:
+            chunks = [new_text]
+            titles = [f"Dynamic Knowledge from {source_url}"]
+
+        if not chunks:
+            return False
+
+        print(f"🧠 Hot-loading {len(chunks)} new Vedic knowledge chunks into RAG memory...")
+        new_embs = _embed_texts(chunks, task_type="RETRIEVAL_DOCUMENT")
+        
+        # Inject into memory
+        _chunks.extend(chunks)
+        _chunk_titles.extend(titles)
+        
+        if _embeddings is None:
+            _embeddings = new_embs
+        else:
+            _embeddings = np.vstack((_embeddings, new_embs))
+            
+        print(f"✅ Injection complete! RAG corpus now contains {len(_chunks)} chunks.")
+        
+        # Best effort save to cache if not locked by HF environment
+        try:
+            content_hash = _compute_content_hash(_chunks)
+            np.savez(CACHE_PATH, embeddings=_embeddings, hash=np.array(content_hash))
+        except Exception:
+            pass # Ignore read-only FS errors on HF
+            
+        return True
+    except Exception as e:
+        print(f"❌ Failed to inject dynamic knowledge: {e}")
+        return False
+
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
