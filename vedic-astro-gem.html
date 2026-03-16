@@ -183,6 +183,25 @@
             text-transform: uppercase;
         }
 
+        .start-over-btn {
+            position: absolute;
+            right: 40px;
+            font-family: var(--sans);
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            color: var(--text-secondary);
+            text-transform: lowercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            background: none;
+            border: none;
+        }
+
+        .start-over-btn:hover {
+            color: #ffffff;
+        }
+
         /* ─── Main Container ─── */
         .main-container {
             flex: 1;
@@ -1273,6 +1292,7 @@
 
     <div class="header">
         <div class="logo">starrygate</div>
+        <button class="start-over-btn hidden" id="startOverBtn" onclick="clearStorageAndReload()">[ start over ]</button>
     </div>
 
     <div class="main-container">
@@ -1659,11 +1679,74 @@ Do not output XML thinking tags. Only output the final text.
         let conversationHistory = [];
         let currentChartContext = '';
 
-        window.onload = () => { };
+        window.onload = () => { 
+            restoreStateFromStorage();
+        };
 
         function getApiKey() { return localStorage.getItem('gemini_api_key') || ''; }
         function saveApiKey() { }
         function resetApiKey() { }
+
+        // ─── LocalStorage Persistence ──────────────────────────────────────
+        function saveStateToStorage() {
+            const state = {
+                chartContext: currentChartContext,
+                chatHistory: conversationHistory,
+                planetaryBadgesHTML: document.getElementById('planetaryBadges').innerHTML,
+                voidCardsHTML: document.getElementById('voidCards').innerHTML,
+                readingContentHTML: document.getElementById('readingContent').innerHTML,
+                chatBoxHTML: document.getElementById('floatingChatMessages').innerHTML
+            };
+            localStorage.setItem('starrygate_state', JSON.stringify(state));
+        }
+
+        function restoreStateFromStorage() {
+            const stateStr = localStorage.getItem('starrygate_state');
+            if (!stateStr) return;
+
+            try {
+                const state = JSON.parse(stateStr);
+                
+                // Restore variables
+                currentChartContext = state.chartContext || '';
+                conversationHistory = state.chatHistory || [];
+
+                // Restore HTML content
+                document.getElementById('planetaryBadges').innerHTML = state.planetaryBadgesHTML || '';
+                document.getElementById('voidCards').innerHTML = state.voidCardsHTML || '';
+                document.getElementById('readingContent').innerHTML = state.readingContentHTML || '';
+                document.getElementById('floatingChatMessages').innerHTML = state.chatBoxHTML || '';
+
+                // Restore UI Visibility
+                document.getElementById('welcomeSection').classList.add('hidden');
+                document.getElementById('readingArea').style.display = 'flex';
+                document.getElementById('planetaryBadges').classList.remove('hidden');
+                
+                // Only show void cards if they have content
+                if (state.voidCardsHTML && state.voidCardsHTML.indexOf('—') === -1) {
+                    document.getElementById('voidCards').classList.remove('hidden');
+                }
+
+                document.getElementById('floatingAskBar').classList.add('active');
+                document.getElementById('startOverBtn').classList.remove('hidden');
+
+                // Scroll chat to bottom
+                const chat = document.getElementById('floatingChatMessages');
+                chat.scrollTop = chat.scrollHeight;
+
+                // Re-init reveal animations
+                setTimeout(initScrollReveal, 100);
+
+            } catch (e) {
+                console.error("Failed to restore state", e);
+                clearStorageAndReload();
+            }
+        }
+
+        function clearStorageAndReload() {
+            localStorage.removeItem('starrygate_state');
+            window.location.reload();
+        }
 
         async function generateFullReading() {
             let dobRaw = document.getElementById('dobInput').value.trim();
@@ -1729,6 +1812,7 @@ Do not output XML thinking tags. Only output the final text.
                 setTimeout(() => {
                     welcomeEl.classList.add('hidden');
                     document.getElementById('readingArea').style.display = 'flex';
+                    document.getElementById('startOverBtn').classList.remove('hidden');
                 }, 600);
 
                 // 2. Automatically ask backend for the full Co-Star reading
@@ -1745,6 +1829,9 @@ Do not output XML thinking tags. Only output the final text.
                 // Show floating ask bar
                 document.getElementById('floatingAskBar').classList.add('active');
 
+                // Save initial state to localStorage
+                saveStateToStorage();
+
             } catch (err) {
                 errorEl.textContent = err.message;
             } finally {
@@ -1756,12 +1843,23 @@ Do not output XML thinking tags. Only output the final text.
         function renderReading(rawText) {
             let data;
             try {
-                // The AI might wrap the JSON in markdown blocks
-                let cleanJsonStr = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
+                // Remove markdown codeblock backticks if present (e.g., ```json\n...\n```)
+                let cleanedText = rawText.replace(/```(json)?/gi, '').replace(/```/g, '').trim();
+                
+                // Robust extraction: find the first { and last }
+                const start = cleanedText.indexOf('{');
+                const end = cleanedText.lastIndexOf('}');
+                
+                if (start === -1 || end === -1) throw new Error("No JSON object found");
+
+                const cleanJsonStr = cleanedText.substring(start, end + 1);
                 data = JSON.parse(cleanJsonStr);
             } catch (e) {
-                console.error("Failed to parse JSON reading", e);
-                document.getElementById('readingContent').innerHTML = "<p>The oracle's vision is clouded. The stars resist translation right now. Try again.</p>";
+                console.error("Failed to parse JSON reading", e, rawText);
+                document.getElementById('readingContent').innerHTML = `
+                    <p class="error-text">The oracle's vision is clouded. The stars resist translation right now.</p>
+                    <p style="font-size: 11px; opacity: 0.5; margin-top: 10px;">technical error: invalid format received</p>
+                `;
                 return;
             }
 
@@ -1887,6 +1985,9 @@ Do not output XML thinking tags. Only output the final text.
                 chat.innerHTML += `<div class="msg-assistant">${marked.parse(cleaned)}</div>`;
                 conversationHistory.push({ role: 'assistant', content: response });
                 chat.scrollTop = chat.scrollHeight;
+
+                // Update localStorage with new chat history
+                saveStateToStorage();
             } catch (err) {
                 const typingEl = document.getElementById('floatingTyping');
                 if (typingEl) typingEl.remove();

@@ -806,6 +806,9 @@ def compute_sarva_ashtakavarga(planets, asc_sign_idx):
 
 # ─── Dynamic Natal Chart Calculation ─────────────────────────────────────────
 
+from functools import lru_cache
+
+@lru_cache(maxsize=128)
 def compute_natal_chart(dob_str, tob_str, lat, lon):
     """
     Compute a full Vedic natal chart for any birth data.
