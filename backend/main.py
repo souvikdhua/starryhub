@@ -60,7 +60,7 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 # Agent 1: Technical Analyst — structured JSON output
 AGENT1_MODEL = "google/gemini-2.5-flash"
-# Agent 2: CoStar Poet — poetic transformation + chat
+# Agent 2: JSON Formatter — clean output + chat
 AGENT2_MODEL = "google/gemini-2.5-flash"
 
 # Configure generation for stability
@@ -95,45 +95,6 @@ class ChartRequest(BaseModel):
     name: str = ""    # optional name
     lat: Optional[float] = None
     lon: Optional[float] = None
-
-# --- Output Schemas (Structured JSON) ---
-class Section(BaseModel):
-    p1: str
-    p2: str
-    p3: str
-
-class DoDontDetail(BaseModel):
-    do: str
-    dont: str
-
-class DoDont(BaseModel):
-    today: DoDontDetail
-    year: DoDontDetail
-    identity: DoDontDetail
-    the_mask: DoDontDetail
-    the_knot: DoDontDetail
-    emotions: DoDontDetail
-    drive: DoDontDetail
-    communication: DoDontDetail
-    love: DoDontDetail
-    pressure: DoDontDetail
-
-class AstroReading(BaseModel):
-    today_at_a_glance: Section
-    year_at_a_glance: Section
-    identity: Section
-    the_mask: Section
-    the_knot: Section
-    emotions: Section
-    drive: Section
-    communication: Section
-    love: Section
-    pressure: Section
-    do_dont: DoDont
-    soul_song: str
-    soul_movie: str
-    quote: str
-    fun_fact: str
 
 # ─── Geocoding (Nominatim) ───────────────────────────────────────────────────
 
@@ -178,7 +139,7 @@ async def calculate_chart(request: ChartRequest):
         
     if lat is None or lon is None:
         return JSONResponse(
-            {"error": {"message": "couldn't find that place. try again."}},
+            {"error": {"message": "Could not find that location. Please try again."}},
             status_code=400
         )
     
@@ -210,7 +171,7 @@ async def calculate_chart(request: ChartRequest):
     except Exception as e:
         print(f"Chart calculation error: {e}")
         return JSONResponse(
-            {"error": {"message": "something broke. the stars are still there. try again."}},
+            {"error": {"message": "Chart calculation failed. Please try again."}},
             status_code=500
         )
 
@@ -386,12 +347,12 @@ async def call_gemini_direct(messages: list[dict[str, Any]], json_mode: bool = F
 # ─── Agent 1: Technical Analyst (OpenRouter) ─────────────────────────────────
 
 async def call_analyst(chart_context: str, live_context: str, rag_context: str) -> str:
-    """Agent 1: Analyzes chart data and outputs structured technical JSON analysis."""
+    """Agent 1: Analyzes chart data and outputs a plain-text reading."""
 
     from prompts import ANALYST_SYSTEM_PROMPT
     system_prompt = ANALYST_SYSTEM_PROMPT
 
-    user_prompt = f"""Analyze this birth chart and output the structured JSON analysis.
+    user_prompt = f"""Analyze this birth chart and write a clear plain-text reading.
 
 {chart_context}
 
@@ -405,15 +366,15 @@ async def call_analyst(chart_context: str, live_context: str, rag_context: str) 
     ]
 
     try:
-        print(f"\n🧠 Stage 1: Technical Analyst ({AGENT1_MODEL})...")
+        print(f"\n🧠 Analyst ({AGENT1_MODEL})...")
         result = await call_openrouter(
             messages, model=AGENT1_MODEL,
-            api_key=get_next_openrouter_key(), json_mode=True
+            api_key=get_next_openrouter_key(), json_mode=False
         )
-        print(f"  ✅ Agent 1: Technical analysis complete")
+        print(f"  ✅ Analysis complete")
         return result
     except Exception as e:
-        print(f"  ⚠ Agent 1 failed: {e}")
+        print(f"  ⚠ Analyst failed: {e}")
         return None
 
 
@@ -467,7 +428,7 @@ async def chat(request: ChatRequest):
     chart_context = data.get("chart_context", "")
 
     if not messages:
-        return JSONResponse({"error": {"message": "you didn't ask anything."}}, status_code=400)
+        return JSONResponse({"error": {"message": "No messages provided."}}, status_code=400)
 
     # Get the latest user query for RAG
     latest_query = ""
@@ -556,7 +517,7 @@ async def chat(request: ChatRequest):
     try:
         if not OPENROUTER_API_KEYS:
             return JSONResponse(
-                {"error": {"message": "no key. the gate is closed."}},
+                {"error": {"message": "No API key configured."}},
                 status_code=401
             )
 
@@ -567,61 +528,34 @@ async def chat(request: ChatRequest):
         analyst_result = None
 
         if is_initial_reading:
-            # ──── STAGE 1: Technical Analyst (Agent 1) ────
+            # ──── Technical Analyst ────
             if chart_context:
                 analyst_result = await call_analyst(chart_context, live_context, rag_context)
 
-            # ──── STAGE 2: CoStar Poet (Agent 2) ────
             if analyst_result:
-                # Multi-agent mode: Poet receives Analyst's structured output
-                print(f"✨ Stage 2: CoStar Poet ({AGENT2_MODEL})...")
-                from prompts import POET_SYSTEM_PROMPT
-                poet_system = POET_SYSTEM_PROMPT
-                poet_messages = [
-                    {"role": "system", "content": poet_system},
-                    {"role": "user", "content": f"Transform this technical astrology analysis into a CoStar-style reading:\n\n{analyst_result}"}
-                ]
-                final_answer = await call_openrouter(
-                    poet_messages, model=AGENT2_MODEL,
-                    api_key=get_next_openrouter_key(), json_mode=True
-                )
-                final_answer = extract_json(final_answer)
-                # Strict Schema Validation
-                try:
-                    AstroReading.model_validate_json(final_answer)
-                except Exception as ve:
-                    print(f"⚠ Pydantic validation failed on Agent 2 output: {ve}")
-                    raise Exception(f"AI returned invalid JSON structure: {ve}")
+                final_answer = analyst_result
             else:
-                # Fallback: Single-agent mode for Initial Reading
+                # Fallback: single-agent plain-text reading
                 print(f"\n🔮 Starrygate (solo mode — Reading)...")
                 has_system = any(msg.get("role") == "system" for msg in messages)
                 if not has_system:
                     messages.insert(0, {"role": "system", "content": "You are a master Vedic astrologer."})
-                
+
                 for msg in messages:
                     if msg.get("role") == "system":
-                        extra = "\n\n<raw_astrological_data_for_internal_analysis_only>\n"
-                        extra += "OUTPUT EXACTLY THE 10-SECTION JSON STRUCTURE. LOWERCASE. POETIC.\n"
+                        extra = "\n\n<chart_data>\n"
                         if chart_context: extra += f"\n{chart_context}"
                         extra += f"\n{live_context}\n{live_dasha}\n{rag_context}"
-                        extra += "\n</raw_astrological_data_for_internal_analysis_only>"
+                        extra += "\n</chart_data>"
                         msg["content"] += extra
                         break
                 final_answer = await call_openrouter(
                     messages, model=AGENT2_MODEL,
-                    api_key=get_next_openrouter_key(), json_mode=True
+                    api_key=get_next_openrouter_key(), json_mode=False
                 )
-                final_answer = extract_json(final_answer)
-                # Strict Schema Validation
-                try:
-                    AstroReading.model_validate_json(final_answer)
-                except Exception as ve:
-                    print(f"⚠ Pydantic validation failed on Solo Agent output: {ve}")
-                    raise Exception(f"AI returned invalid JSON structure: {ve}")
         else:
             # ──── FREE-FORM CHAT MODE ────
-            print(f"💬 Chat Mode: Poetic follow-up...")
+            print(f"💬 Chat Mode: Follow-up...")
             from prompts import CHAT_SYSTEM_PROMPT
             chat_system = CHAT_SYSTEM_PROMPT
 
@@ -638,16 +572,14 @@ async def chat(request: ChatRequest):
 
         print("✅ Response complete!\n")
 
-        print("✅ Response complete!\n")
-
         # ─── Logging ───
         try:
             os.makedirs("logs", exist_ok=True)
             output_hash = hashlib.sha256(final_answer.encode('utf-8')).hexdigest()[:12]
             log_data = {
                 "timestamp": datetime.now().isoformat(),
-                "model": f"multi-agent ({AGENT1_MODEL} → {AGENT2_MODEL})" if analyst_result else AGENT2_MODEL,
-                "multi_agent": bool(analyst_result),
+                "model": AGENT1_MODEL if analyst_result else AGENT2_MODEL,
+                "used_analyst": bool(analyst_result),
                 "output_hash": output_hash,
                 "prompt_length": len(str(messages))
             }
@@ -670,9 +602,9 @@ async def chat(request: ChatRequest):
         error_msg = str(e)
 
         if "rate" in error_msg.lower() or "429" in error_msg:
-            user_msg = "too many questions. breathe. try again in a moment."
+            user_msg = "Too many requests. Please try again in a moment."
         else:
-            user_msg = f"something went quiet. ({error_msg})"
+            user_msg = f"Something went wrong. ({error_msg})"
 
         return JSONResponse({"error": {"message": user_msg}}, status_code=500)
 
