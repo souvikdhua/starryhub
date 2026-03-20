@@ -96,45 +96,6 @@ class ChartRequest(BaseModel):
     lat: Optional[float] = None
     lon: Optional[float] = None
 
-# --- Output Schemas (Structured JSON) ---
-class Section(BaseModel):
-    p1: str
-    p2: str
-    p3: str
-
-class DoDontDetail(BaseModel):
-    do: str
-    dont: str
-
-class DoDont(BaseModel):
-    today: DoDontDetail
-    year: DoDontDetail
-    identity: DoDontDetail
-    the_mask: DoDontDetail
-    the_knot: DoDontDetail
-    emotions: DoDontDetail
-    drive: DoDontDetail
-    communication: DoDontDetail
-    love: DoDontDetail
-    pressure: DoDontDetail
-
-class AstroReading(BaseModel):
-    today_at_a_glance: Section
-    year_at_a_glance: Section
-    identity: Section
-    the_mask: Section
-    the_knot: Section
-    emotions: Section
-    drive: Section
-    communication: Section
-    love: Section
-    pressure: Section
-    do_dont: DoDont
-    soul_song: str
-    soul_movie: str
-    quote: str
-    fun_fact: str
-
 # ─── Geocoding (Nominatim) ───────────────────────────────────────────────────
 
 def geocode_place(place: str) -> tuple:
@@ -386,12 +347,12 @@ async def call_gemini_direct(messages: list[dict[str, Any]], json_mode: bool = F
 # ─── Agent 1: Technical Analyst (OpenRouter) ─────────────────────────────────
 
 async def call_analyst(chart_context: str, live_context: str, rag_context: str) -> str:
-    """Agent 1: Analyzes chart data and outputs structured technical JSON analysis."""
+    """Agent 1: Analyzes chart data and outputs a plain-text reading."""
 
     from prompts import ANALYST_SYSTEM_PROMPT
     system_prompt = ANALYST_SYSTEM_PROMPT
 
-    user_prompt = f"""Analyze this birth chart and output the structured JSON analysis.
+    user_prompt = f"""Analyze this birth chart and write a clear plain-text reading.
 
 {chart_context}
 
@@ -405,15 +366,15 @@ async def call_analyst(chart_context: str, live_context: str, rag_context: str) 
     ]
 
     try:
-        print(f"\n🧠 Stage 1: Technical Analyst ({AGENT1_MODEL})...")
+        print(f"\n🧠 Analyst ({AGENT1_MODEL})...")
         result = await call_openrouter(
             messages, model=AGENT1_MODEL,
-            api_key=get_next_openrouter_key(), json_mode=True
+            api_key=get_next_openrouter_key(), json_mode=False
         )
-        print(f"  ✅ Agent 1: Technical analysis complete")
+        print(f"  ✅ Analysis complete")
         return result
     except Exception as e:
-        print(f"  ⚠ Agent 1 failed: {e}")
+        print(f"  ⚠ Analyst failed: {e}")
         return None
 
 
@@ -567,46 +528,31 @@ async def chat(request: ChatRequest):
         analyst_result = None
 
         if is_initial_reading:
-            # ──── STAGE 1: Technical Analyst (Agent 1) ────
+            # ──── Technical Analyst ────
             if chart_context:
                 analyst_result = await call_analyst(chart_context, live_context, rag_context)
 
             if analyst_result:
-                # Use the Analyst's structured output directly as the final answer
-                final_answer = extract_json(analyst_result)
-                # Strict Schema Validation
-                try:
-                    AstroReading.model_validate_json(final_answer)
-                except Exception as ve:
-                    print(f"⚠ Pydantic validation failed on Analyst output: {ve}")
-                    raise Exception(f"AI returned invalid JSON structure: {ve}")
+                final_answer = analyst_result
             else:
-                # Fallback: Single-agent mode for Initial Reading
+                # Fallback: single-agent plain-text reading
                 print(f"\n🔮 Starrygate (solo mode — Reading)...")
                 has_system = any(msg.get("role") == "system" for msg in messages)
                 if not has_system:
                     messages.insert(0, {"role": "system", "content": "You are a master Vedic astrologer."})
-                
+
                 for msg in messages:
                     if msg.get("role") == "system":
-                        extra = "\n\n<raw_astrological_data_for_internal_analysis_only>\n"
-                        extra += "OUTPUT EXACTLY THE 10-SECTION JSON STRUCTURE.\n"
+                        extra = "\n\n<chart_data>\n"
                         if chart_context: extra += f"\n{chart_context}"
                         extra += f"\n{live_context}\n{live_dasha}\n{rag_context}"
-                        extra += "\n</raw_astrological_data_for_internal_analysis_only>"
+                        extra += "\n</chart_data>"
                         msg["content"] += extra
                         break
                 final_answer = await call_openrouter(
                     messages, model=AGENT2_MODEL,
-                    api_key=get_next_openrouter_key(), json_mode=True
+                    api_key=get_next_openrouter_key(), json_mode=False
                 )
-                final_answer = extract_json(final_answer)
-                # Strict Schema Validation
-                try:
-                    AstroReading.model_validate_json(final_answer)
-                except Exception as ve:
-                    print(f"⚠ Pydantic validation failed on Solo Agent output: {ve}")
-                    raise Exception(f"AI returned invalid JSON structure: {ve}")
         else:
             # ──── FREE-FORM CHAT MODE ────
             print(f"💬 Chat Mode: Follow-up...")
@@ -623,8 +569,6 @@ async def chat(request: ChatRequest):
                 messages, model=AGENT2_MODEL,
                 api_key=get_next_openrouter_key(), json_mode=False
             )
-
-        print("✅ Response complete!\n")
 
         print("✅ Response complete!\n")
 
